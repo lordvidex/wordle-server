@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Websocket tester</title>
+</head>
+<body>
+<script>
+    const websocket = new WebSocket('ws://localhost:8080/live');
+
+    websocket.onopen = (ev) => {
+        console.log('connection opened with ', ev)
+        websocket.send(`{"message": "Hello from client"}`)
+    }
+    websocket.onclose = function (event) {
+        console.log('Disconnected from websocket: ', event)
+    };
+    websocket.onmessage = function (ev) {
+        console.log(ev)
+    }
+</script>
+</body>
+</html>
