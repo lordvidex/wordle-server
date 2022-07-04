@@ -1,6 +1,5 @@
 package words
 
-//import "golang.org/x/net/websocket"
 import (
 	"fmt"
 	"github.com/gorilla/websocket"
@@ -21,31 +20,26 @@ type WebsocketHandler struct {
 func (w WebsocketHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	conn, err := upgrader.Upgrade(writer, request, nil)
 	if err != nil {
-		fmt.Printf("error occured while upgrading the connection: %s", err)
+		conn.Close()
 	}
-
-	go func() {
-		for {
-			_, b, err := conn.ReadMessage()
-			if err != nil {
-				if websocket.IsCloseError(err) {
-					break
-				}
-				fmt.Println("An error occured reading message", err)
-			}
-
-			fmt.Println(b)
-			err = conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("Server is returning %s", b)))
-			if err != nil {
-				fmt.Println("Error writing message")
-			}
-
+	for {
+		_, b, err := conn.ReadMessage()
+		if err != nil {
+			conn.Close()
 		}
-	}()
-	err = conn.WriteJSON(map[string]string{"message": "hello"})
 
-	if err != nil {
-		fmt.Println("Error writing to connection")
+		fmt.Println(b)
+		err = conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("Server is returning %s", b)))
+		if err != nil {
+			fmt.Println("Error writing message")
+		}
+		err = conn.WriteJSON(map[string]string{
+			"title":   "Hello World",
+			"message": string(b),
+		})
+		if err != nil {
+			fmt.Println("An error occurred with ", err)
+		}
 	}
 }
 

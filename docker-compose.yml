@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  app-dev:
+    container_name: wordle-server
+    image: wordle-server
+    build:
+      context: .
+      target: development
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
