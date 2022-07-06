@@ -1,3 +1,5 @@
+// app represents the entry point of the application.
+// This is where dependencies are wired together and the application is started.
 package app
 
 import (

@@ -5,11 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a30c929b-8e67-4a4f-99dd-7cb7dbdb5ef7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docker/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/adapters/wordgen.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/db/pg/game.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/game/join-leave_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/game/lobby.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/game/notification.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/game/play.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/words/word_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/server/app/wire_gen.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/app/wire_gen.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/words/websocket.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/words/websocket.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/server/app/app.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/app/app.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/docker/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/auth/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/auth/handler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/game/game.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/game/game.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/game/player.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/game/player.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/words/data.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/words/data_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/words/handler.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/words/repository.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/words/resources/five_letter_words.txt" beforeDir="false" afterPath="$PROJECT_DIR$/internal/adapters/resources/five_letter_words.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/words/service.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/words/websocket.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/words/word.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/words/word.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,19 +70,20 @@
     "configurable..is.expanded": "true",
     "configurable.GoLibrariesConfigurable.is.expanded": "true",
     "go.import.settings.migrated": "true",
-    "last_opened_file_path": "/Users/lordvidex/GoProjects/wordleServer",
+    "last_opened_file_path": "/Users/lordvidex/GoProjects/wordle-server",
     "settings.editor.selected.configurable": "preferences.general"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/internal/common/json" />
-      <recent name="$PROJECT_DIR$/internal/words/resources" />
-      <recent name="$PROJECT_DIR$/cmd/server" />
-      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/internal/game" />
+      <recent name="$PROJECT_DIR$/internal/game/commands" />
+      <recent name="$PROJECT_DIR$/internal" />
+      <recent name="$PROJECT_DIR$/internal/adapters" />
+      <recent name="$PROJECT_DIR$/internal/app/resources" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Build.go build github.com/lordvidex/wordle-wf/cmd/server">
+  <component name="RunManager" selected="Go Test.TestSession_Complete in github.com/lordvidex/wordle-wf/internal/game">
     <configuration name="go build github.com/lordvidex/wordle-wf/cmd/server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="wordleServer" />
       <working_directory value="$PROJECT_DIR$" />
@@ -72,38 +91,6 @@
       <package value="github.com/lordvidex/wordle-wf/cmd/server" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$/cmd/server/main.go" />
-      <method v="2" />
-    </configuration>
-    <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
-      <module name="wordleServer" />
-      <working_directory value="$PROJECT_DIR$" />
-      <kind value="FILE" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/main.go" />
-      <method v="2" />
-    </configuration>
-    <configuration name="TestDataIsReadFromJSON in github.com/lordvidex/wordle-wf/internal/words" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="wordleServer" />
-      <working_directory value="$PROJECT_DIR$/internal/words" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="github.com/lordvidex/wordle-wf/internal/words" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <pattern value="^\QTestDataIsReadFromJSON\E$" />
-      <method v="2" />
-    </configuration>
-    <configuration name="TestGetRandomWord in github.com/lordvidex/wordle-wf/internal/words" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="wordleServer" />
-      <working_directory value="$PROJECT_DIR$/internal/words" />
-      <root_directory value="$PROJECT_DIR$" />
-      <kind value="PACKAGE" />
-      <package value="github.com/lordvidex/wordle-wf/internal/words" />
-      <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <pattern value="^\QTestGetRandomWord\E$" />
       <method v="2" />
     </configuration>
     <configuration name="TestGetRandomWord/should_return_a_random_word_6_times in github.com/lordvidex/wordle-wf/internal/words" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
@@ -118,13 +105,49 @@
       <pattern value="^\QTestGetRandomWord\E$/^\Qshould_return_a_random_word_6_times\E$" />
       <method v="2" />
     </configuration>
+    <configuration name="TestSession_Complete in github.com/lordvidex/wordle-wf/internal/game" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="wordleServer" />
+      <working_directory value="$PROJECT_DIR$/internal/game" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/lordvidex/wordle-wf/internal/game" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestSession_Complete\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestWord_CompareToCorrect in github.com/lordvidex/wordle-wf/internal/words" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="wordleServer" />
+      <working_directory value="$PROJECT_DIR$/internal/words" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/lordvidex/wordle-wf/internal/words" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestWord_CompareToCorrect\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestWord_SetLetterStatus in github.com/lordvidex/wordle-wf/internal/words" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="wordleServer" />
+      <working_directory value="$PROJECT_DIR$/internal/words" />
+      <root_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <package value="github.com/lordvidex/wordle-wf/internal/words" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestWord_SetLetterStatus\E$" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Test.TestSession_Complete in github.com/lordvidex/wordle-wf/internal/game" />
+        <item itemvalue="Go Test.TestWord_SetLetterStatus in github.com/lordvidex/wordle-wf/internal/words" />
+        <item itemvalue="Go Test.TestWord_CompareToCorrect in github.com/lordvidex/wordle-wf/internal/words" />
         <item itemvalue="Go Build.go build github.com/lordvidex/wordle-wf/cmd/server" />
         <item itemvalue="Go Test.TestGetRandomWord/should_return_a_random_word_6_times in github.com/lordvidex/wordle-wf/internal/words" />
-        <item itemvalue="Go Test.TestGetRandomWord in github.com/lordvidex/wordle-wf/internal/words" />
-        <item itemvalue="Go Test.TestDataIsReadFromJSON in github.com/lordvidex/wordle-wf/internal/words" />
-        <item itemvalue="Go Build.go build main.go" />
       </list>
     </recent_temporary>
   </component>

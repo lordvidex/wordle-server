@@ -1,6 +1,8 @@
 package game
 
+import "github.com/google/uuid"
+
 type Player struct {
-	ID   string // TODO: change string to UUID
+	ID   uuid.UUID // TODO: change string to UUID
 	Name string
 }

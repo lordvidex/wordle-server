@@ -17,5 +17,5 @@ func LoginHandler(http.ResponseWriter, *http.Request) {
 }
 
 func LogoutHandler(http.ResponseWriter, *http.Request) {
-	
+
 }
