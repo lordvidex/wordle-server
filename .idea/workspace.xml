@@ -5,29 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a30c929b-8e67-4a4f-99dd-7cb7dbdb5ef7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/internal/adapters/wordgen.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/db/pg/game.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/game/join-leave_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/game/lobby.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/game/notification.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/game/play.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/words/word_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/db/mongo/player.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/db/mongo/word.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/db/pg/schema.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/db/pg/sqlc.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/websockets/gamesocket.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/server/app/app.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/app/app.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/docker/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/auth/handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/auth/handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/game/game.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/game/game.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/game/player.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/game/player.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/words/data.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/words/data_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/words/handler.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/words/repository.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/words/resources/five_letter_words.txt" beforeDir="false" afterPath="$PROJECT_DIR$/internal/adapters/resources/five_letter_words.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/words/service.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/words/websocket.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/words/word.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/words/word.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/game.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/game/join-leave.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/game/join-leave_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/game/usecases.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/game/usecases.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,16 +61,16 @@
     "configurable.GoLibrariesConfigurable.is.expanded": "true",
     "go.import.settings.migrated": "true",
     "last_opened_file_path": "/Users/lordvidex/GoProjects/wordle-server",
-    "settings.editor.selected.configurable": "preferences.general"
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/internal/db/mongo" />
+      <recent name="$PROJECT_DIR$/internal/db/game" />
       <recent name="$PROJECT_DIR$/internal/game" />
       <recent name="$PROJECT_DIR$/internal/game/commands" />
       <recent name="$PROJECT_DIR$/internal" />
-      <recent name="$PROJECT_DIR$/internal/adapters" />
-      <recent name="$PROJECT_DIR$/internal/app/resources" />
     </key>
   </component>
   <component name="RunManager" selected="Go Test.TestSession_Complete in github.com/lordvidex/wordle-wf/internal/game">

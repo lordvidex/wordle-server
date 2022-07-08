@@ -9,7 +9,6 @@ type Queries struct {
 
 type Commands struct {
 	StartGameCommandHandler StartGameCommandHandler
-	JoinGameCommandHandler  JoinGameCommandHandler
 }
 
 type UseCases struct {
@@ -22,7 +21,6 @@ func NewUseCases(repo Repository, g words.RandomHandler, n NotificationService) 
 		Queries: Queries{},
 		Commands: Commands{
 			StartGameCommandHandler: NewStartGameCommandHandler(repo, g, n),
-			JoinGameCommandHandler:  NewJoinGameCommandHandler(repo, n),
 		},
 	}
 }
