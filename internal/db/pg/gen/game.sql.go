@@ -7,17 +7,200 @@ package pg
 
 import (
 	"context"
+	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgtype"
 )
 
-const getGame = `-- name: GetGame :one
-SELECT id, word_id FROM game WHERE id = $1
+const addPlayerGuess = `-- name: AddPlayerGuess :exec
+INSERT INTO game_session_guess(
+    game_session_id,
+    word_id
+) VALUES($1, $2)
 `
 
-func (q *Queries) GetGame(ctx context.Context, id uuid.UUID) (Game, error) {
-	row := q.db.QueryRow(ctx, getGame, id)
-	var i Game
-	err := row.Scan(&i.ID, &i.WordID)
+type AddPlayerGuessParams struct {
+	GameSessionID uuid.NullUUID
+	WordID        uuid.NullUUID
+}
+
+func (q *Queries) AddPlayerGuess(ctx context.Context, arg AddPlayerGuessParams) error {
+	_, err := q.db.Exec(ctx, addPlayerGuess, arg.GameSessionID, arg.WordID)
+	return err
+}
+
+const addPlayerSessionToGame = `-- name: AddPlayerSessionToGame :exec
+INSERT INTO game_session(game_id, player_id) VALUES($1, $2)
+`
+
+type AddPlayerSessionToGameParams struct {
+	GameID   uuid.NullUUID
+	PlayerID uuid.NullUUID
+}
+
+func (q *Queries) AddPlayerSessionToGame(ctx context.Context, arg AddPlayerSessionToGameParams) error {
+	_, err := q.db.Exec(ctx, addPlayerSessionToGame, arg.GameID, arg.PlayerID)
+	return err
+}
+
+const createGame = `-- name: CreateGame :exec
+INSERT INTO
+    game (id, word_id)
+VALUES
+    ($1, $2) RETURNING id, word_id
+`
+
+type CreateGameParams struct {
+	ID     uuid.UUID
+	WordID uuid.NullUUID
+}
+
+//
+// CREATIONS
+//
+func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) error {
+	_, err := q.db.Exec(ctx, createGame, arg.ID, arg.WordID)
+	return err
+}
+
+const createGameSettings = `-- name: CreateGameSettings :exec
+INSERT INTO
+    game_settings(
+        game_id,
+        word_length,
+        trials,
+        player_count,
+        has_analytics,
+        should_record_time,
+        can_view_opponents_sessions
+    )
+VALUES
+($1, $2, $3, $4, $5, $6, $7) RETURNING id, game_id, word_length, trials, player_count, has_analytics, should_record_time, can_view_opponents_sessions
+`
+
+type CreateGameSettingsParams struct {
+	GameID                   uuid.NullUUID
+	WordLength               sql.NullInt32
+	Trials                   sql.NullInt32
+	PlayerCount              sql.NullInt32
+	HasAnalytics             sql.NullBool
+	ShouldRecordTime         sql.NullBool
+	CanViewOpponentsSessions sql.NullBool
+}
+
+func (q *Queries) CreateGameSettings(ctx context.Context, arg CreateGameSettingsParams) error {
+	_, err := q.db.Exec(ctx, createGameSettings,
+		arg.GameID,
+		arg.WordLength,
+		arg.Trials,
+		arg.PlayerCount,
+		arg.HasAnalytics,
+		arg.ShouldRecordTime,
+		arg.CanViewOpponentsSessions,
+	)
+	return err
+}
+
+const getGameAndSettings = `-- name: GetGameAndSettings :one
+SELECT
+    game.id, word_id, word.id, time_played, letters, game_settings.id, game_id, word_length, trials, player_count, has_analytics, should_record_time, can_view_opponents_sessions
+FROM
+    game
+    INNER JOIN word ON word.id = game.word_id
+    INNER JOIN game_settings ON game_settings.game_id = game.id
+WHERE
+    game.id = $1
+LIMIT
+    1
+`
+
+type GetGameAndSettingsRow struct {
+	ID                       uuid.UUID
+	WordID                   uuid.NullUUID
+	ID_2                     uuid.UUID
+	TimePlayed               time.Time
+	Letters                  pgtype.JSON
+	ID_3                     uuid.UUID
+	GameID                   uuid.NullUUID
+	WordLength               sql.NullInt32
+	Trials                   sql.NullInt32
+	PlayerCount              sql.NullInt32
+	HasAnalytics             sql.NullBool
+	ShouldRecordTime         sql.NullBool
+	CanViewOpponentsSessions sql.NullBool
+}
+
+//
+//  -- QUERIES --
+//
+func (q *Queries) GetGameAndSettings(ctx context.Context, id uuid.UUID) (GetGameAndSettingsRow, error) {
+	row := q.db.QueryRow(ctx, getGameAndSettings, id)
+	var i GetGameAndSettingsRow
+	err := row.Scan(
+		&i.ID,
+		&i.WordID,
+		&i.ID_2,
+		&i.TimePlayed,
+		&i.Letters,
+		&i.ID_3,
+		&i.GameID,
+		&i.WordLength,
+		&i.Trials,
+		&i.PlayerCount,
+		&i.HasAnalytics,
+		&i.ShouldRecordTime,
+		&i.CanViewOpponentsSessions,
+	)
 	return i, err
+}
+
+const listSessionsInGame = `-- name: ListSessionsInGame :many
+SELECT
+    game_session.id, game_id, player_id, game.id, word_id, game_player.id, name
+FROM
+    game_session
+    INNER JOIN game on game_session.game_id = game.id
+    INNER JOIN game_player on game_player.id = game_session.player_id
+WHERE
+    game_session.game_id = $1
+`
+
+type ListSessionsInGameRow struct {
+	ID       uuid.UUID
+	GameID   uuid.NullUUID
+	PlayerID uuid.NullUUID
+	ID_2     uuid.UUID
+	WordID   uuid.NullUUID
+	ID_3     uuid.UUID
+	Name     string
+}
+
+func (q *Queries) ListSessionsInGame(ctx context.Context, gameID uuid.NullUUID) ([]ListSessionsInGameRow, error) {
+	rows, err := q.db.Query(ctx, listSessionsInGame, gameID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListSessionsInGameRow{}
+	for rows.Next() {
+		var i ListSessionsInGameRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.PlayerID,
+			&i.ID_2,
+			&i.WordID,
+			&i.ID_3,
+			&i.Name,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

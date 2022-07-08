@@ -7,10 +7,35 @@ package pg
 
 import (
 	"context"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgtype"
 )
 
+const createWord = `-- name: CreateWord :one
+INSERT INTO word(
+    id,
+    time_played, 
+    letters
+) VALUES ($1, $2, $3) RETURNING id, time_played, letters
+`
+
+type CreateWordParams struct {
+	Wordid      uuid.UUID
+	Timeplayed  time.Time
+	Lettersjson pgtype.JSON
+}
+
+func (q *Queries) CreateWord(ctx context.Context, arg CreateWordParams) (Word, error) {
+	row := q.db.QueryRow(ctx, createWord, arg.Wordid, arg.Timeplayed, arg.Lettersjson)
+	var i Word
+	err := row.Scan(&i.ID, &i.TimePlayed, &i.Letters)
+	return i, err
+}
+
 const getWord = `-- name: GetWord :one
-SELECT id, time_played, letters from word WHERE id=@id
+SELECT id, time_played, letters from word WHERE id=@wordId
 `
 
 func (q *Queries) GetWord(ctx context.Context) (Word, error) {

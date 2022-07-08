@@ -1,3 +1,6 @@
+-- for UUID
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE word (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     time_played TIMESTAMP NOT NULL,

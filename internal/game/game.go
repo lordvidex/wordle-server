@@ -68,7 +68,7 @@ type Settings struct {
 	PlayerCount           int  `json:"player_count"`
 	Analytics             bool `json:"has_analytics"`
 	RecordTime            bool `json:"should_record_time"`
-	ViewOpponentsSessions bool `json:"should_view_opponents_sessions"`
+	ViewOpponentsSessions bool `json:"can_view_opponents_sessions"`
 }
 
 // NewSettings creates a new Settings struct

@@ -5,19 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a30c929b-8e67-4a4f-99dd-7cb7dbdb5ef7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/internal/db/mongo/player.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/db/mongo/word.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/db/pg/schema.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/db/pg/sqlc.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/websockets/gamesocket.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/server/app/app.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/app/app.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/db/pg/game.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/game/join-leave.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/game/join-leave_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/game/usecases.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/game/usecases.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/gen/game.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/gen/game.sql.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/gen/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/gen/models.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/gen/word.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/gen/word.sql.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/queries/game.sql" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/queries/game.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/queries/word.sql" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/queries/word.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/schema/game.sql" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/schema/game.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/schema/word.sql" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/schema/word.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/game/game.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/game/game.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlc.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/sqlc.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

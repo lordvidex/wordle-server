@@ -5,6 +5,7 @@
 package pg
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,6 +15,11 @@ import (
 type Game struct {
 	ID     uuid.UUID
 	WordID uuid.NullUUID
+}
+
+type GamePlayer struct {
+	ID   uuid.UUID
+	Name string
 }
 
 type GameSession struct {
@@ -28,9 +34,15 @@ type GameSessionGuess struct {
 	WordID        uuid.NullUUID
 }
 
-type Player struct {
-	ID   uuid.UUID
-	Name string
+type GameSetting struct {
+	ID                       uuid.UUID
+	GameID                   uuid.NullUUID
+	WordLength               sql.NullInt32
+	Trials                   sql.NullInt32
+	PlayerCount              sql.NullInt32
+	HasAnalytics             sql.NullBool
+	ShouldRecordTime         sql.NullBool
+	CanViewOpponentsSessions sql.NullBool
 }
 
 type Word struct {
