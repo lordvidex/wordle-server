@@ -20,8 +20,8 @@ const (
 
 // Letter is a struct that represents a letter in a word guess and it's Status
 type Letter struct {
-	Rune   rune
-	Status LetterStatus
+	Rune   rune         `json:"rune"`
+	Status LetterStatus `json:"status"`
 }
 
 // Letters represent a struct of Letter which provides functions to conveniently

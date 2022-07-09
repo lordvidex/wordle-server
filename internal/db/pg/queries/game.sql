@@ -46,10 +46,10 @@ INSERT INTO
 VALUES
 ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
 
--- name: AddPlayerSessionToGame :exec
-INSERT INTO game_session(game_id, player_id) VALUES($1, $2);
+-- name: AddPlayerSessionToGame :one
+INSERT INTO game_session(game_id, player_id) VALUES($1, $2) RETURNING id;
 
--- name: AddPlayerGuess :exec
+-- name: AddPlayerGuess :copyfrom
 INSERT INTO game_session_guess(
     game_session_id,
     word_id

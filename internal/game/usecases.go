@@ -5,6 +5,8 @@ import (
 )
 
 type Queries struct {
+	FindGameQueryHandler     FindGameQueryHandler
+	FindAllGamesQueryHandler FindAllGamesQueryHandler
 }
 
 type Commands struct {
@@ -18,7 +20,10 @@ type UseCases struct {
 
 func NewUseCases(repo Repository, g words.RandomHandler, n NotificationService) UseCases {
 	return UseCases{
-		Queries: Queries{},
+		Queries: Queries{
+			FindGameQueryHandler:     NewFindGameQueryHandler(repo),
+			FindAllGamesQueryHandler: NewFindAllGamesQueryHandler(repo),
+		},
 		Commands: Commands{
 			StartGameCommandHandler: NewStartGameCommandHandler(repo, g, n),
 		},

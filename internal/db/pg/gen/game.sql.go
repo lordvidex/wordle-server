@@ -14,35 +14,25 @@ import (
 	"github.com/jackc/pgtype"
 )
 
-const addPlayerGuess = `-- name: AddPlayerGuess :exec
-INSERT INTO game_session_guess(
-    game_session_id,
-    word_id
-) VALUES($1, $2)
-`
-
 type AddPlayerGuessParams struct {
 	GameSessionID uuid.NullUUID
 	WordID        uuid.NullUUID
 }
 
-func (q *Queries) AddPlayerGuess(ctx context.Context, arg AddPlayerGuessParams) error {
-	_, err := q.db.Exec(ctx, addPlayerGuess, arg.GameSessionID, arg.WordID)
-	return err
-}
-
-const addPlayerSessionToGame = `-- name: AddPlayerSessionToGame :exec
-INSERT INTO game_session(game_id, player_id) VALUES($1, $2)
+const addPlayerSessionToGame = `-- name: AddPlayerSessionToGame :one
+INSERT INTO game_session(game_id, player_id) VALUES($1, $2) RETURNING id
 `
 
 type AddPlayerSessionToGameParams struct {
-	GameID   uuid.NullUUID
-	PlayerID uuid.NullUUID
+	GameID   uuid.UUID
+	PlayerID uuid.UUID
 }
 
-func (q *Queries) AddPlayerSessionToGame(ctx context.Context, arg AddPlayerSessionToGameParams) error {
-	_, err := q.db.Exec(ctx, addPlayerSessionToGame, arg.GameID, arg.PlayerID)
-	return err
+func (q *Queries) AddPlayerSessionToGame(ctx context.Context, arg AddPlayerSessionToGameParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, addPlayerSessionToGame, arg.GameID, arg.PlayerID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const createGame = `-- name: CreateGame :exec
@@ -82,9 +72,9 @@ VALUES
 
 type CreateGameSettingsParams struct {
 	GameID                   uuid.NullUUID
-	WordLength               sql.NullInt32
-	Trials                   sql.NullInt32
-	PlayerCount              sql.NullInt32
+	WordLength               sql.NullInt16
+	Trials                   sql.NullInt16
+	PlayerCount              sql.NullInt16
 	HasAnalytics             sql.NullBool
 	ShouldRecordTime         sql.NullBool
 	CanViewOpponentsSessions sql.NullBool
@@ -124,9 +114,9 @@ type GetGameAndSettingsRow struct {
 	Letters                  pgtype.JSON
 	ID_3                     uuid.UUID
 	GameID                   uuid.NullUUID
-	WordLength               sql.NullInt32
-	Trials                   sql.NullInt32
-	PlayerCount              sql.NullInt32
+	WordLength               sql.NullInt16
+	Trials                   sql.NullInt16
+	PlayerCount              sql.NullInt16
 	HasAnalytics             sql.NullBool
 	ShouldRecordTime         sql.NullBool
 	CanViewOpponentsSessions sql.NullBool
@@ -135,7 +125,7 @@ type GetGameAndSettingsRow struct {
 //
 //  -- QUERIES --
 //
-func (q *Queries) GetGameAndSettings(ctx context.Context, id uuid.UUID) (GetGameAndSettingsRow, error) {
+func (q *Queries) GetGameAndSettings(ctx context.Context, id uuid.UUID) (*GetGameAndSettingsRow, error) {
 	row := q.db.QueryRow(ctx, getGameAndSettings, id)
 	var i GetGameAndSettingsRow
 	err := row.Scan(
@@ -153,7 +143,7 @@ func (q *Queries) GetGameAndSettings(ctx context.Context, id uuid.UUID) (GetGame
 		&i.ShouldRecordTime,
 		&i.CanViewOpponentsSessions,
 	)
-	return i, err
+	return &i, err
 }
 
 const listSessionsInGame = `-- name: ListSessionsInGame :many
@@ -169,21 +159,21 @@ WHERE
 
 type ListSessionsInGameRow struct {
 	ID       uuid.UUID
-	GameID   uuid.NullUUID
-	PlayerID uuid.NullUUID
+	GameID   uuid.UUID
+	PlayerID uuid.UUID
 	ID_2     uuid.UUID
 	WordID   uuid.NullUUID
 	ID_3     uuid.UUID
 	Name     string
 }
 
-func (q *Queries) ListSessionsInGame(ctx context.Context, gameID uuid.NullUUID) ([]ListSessionsInGameRow, error) {
+func (q *Queries) ListSessionsInGame(ctx context.Context, gameID uuid.UUID) ([]*ListSessionsInGameRow, error) {
 	rows, err := q.db.Query(ctx, listSessionsInGame, gameID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListSessionsInGameRow{}
+	items := []*ListSessionsInGameRow{}
 	for rows.Next() {
 		var i ListSessionsInGameRow
 		if err := rows.Scan(
@@ -197,7 +187,7 @@ func (q *Queries) ListSessionsInGame(ctx context.Context, gameID uuid.NullUUID) 
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

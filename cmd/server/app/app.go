@@ -3,9 +3,10 @@
 package app
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v4"
 	"github.com/lordvidex/wordle-wf/internal/adapters"
 	"github.com/lordvidex/wordle-wf/internal/auth"
 	"github.com/lordvidex/wordle-wf/internal/db/pg"
@@ -13,22 +14,60 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/middleware"
 	"github.com/lordvidex/wordle-wf/internal/websockets"
 	"github.com/lordvidex/wordle-wf/internal/words"
-	"github.com/uptrace/bun/driver/pgdriver"
 	"log"
 	"net/http"
 )
 
-func Start() {
+func connectDB() (*pgx.Conn, error) {
 	dsn := "postgres://postgres:@localhost:5432/test?sslmode=disable"
 	// dsn := "unix://user:pass@dbname/var/run/postgresql/.s.PGSQL.5432"
-	pgDB := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+	//pgDB := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+	pgConn, err := pgx.Connect(context.Background(), dsn)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to connect to database: %v\n", err)
+	}
+	err = pgConn.Ping(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %v", err)
+	}
+	log.Println("Connected to database")
+	return pgConn, err
+}
 
-	router := mux.NewRouter()
-	gameSocket := websockets.NewGameSocket()
+func Start() {
+	// connect to database
+	pgConn, err := connectDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		_ = pgConn.Close(context.Background())
+	}()
+
+	// repositories
+	gameRepo := pg.NewGameRepository(pgConn)
+
+	// services and dependencies
+	var gameSocket *websockets.GameSocket
+	defer func() {
+		if err := gameSocket.Close(); err != nil {
+			log.Println("error closing websocket", err)
+		}
+	}()
+
+	// usecases and application layer components
+	wordsUsecase := words.NewUseCases(
+		adapters.NewLocalStringGenerator(),
+		nil,
+	)
 	gameUsecase := game.NewUseCases(
-		pg.NewBunRepository(pgDB),
-		words.NewRandomHandler(adapters.NewLocalStringGenerator()),
+		gameRepo,
+		wordsUsecase.Queries.GetRandomWordHandler,
 		gameSocket)
+
+	// adapters and external services
+	gameSocket = websockets.NewGameSocket(gameUsecase.Queries.FindGameQueryHandler)
+	router := mux.NewRouter()
 
 	registerApi(router, gameUsecase)
 	registerWS(router, gameSocket)
@@ -47,14 +86,13 @@ func registerWS(router *mux.Router, ws http.Handler) {
 }
 
 // registerApi registers the API endpoints.
-func registerApi(router *mux.Router) {
+func registerApi(router *mux.Router, cases game.UseCases) {
 	// main api endpoint
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(middleware.HandleError, middleware.JSONContent, middleware.Logger)
 
 	// words endpoint
-	wordsRouter := apiRouter.PathPrefix("/words").Subrouter()
-	RegisterWordsHandler(wordsRouter)
+	//wordsRouter := apiRouter.PathPrefix("/words").Subrouter()
 
 	// auth endpoints
 	authRouter := apiRouter.PathPrefix("/auth").Subrouter()

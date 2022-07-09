@@ -4,12 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/lordvidex/wordle-wf/internal/game"
 	"net/http"
-	"strings"
-	"time"
 )
 
 var (
@@ -20,119 +17,94 @@ var (
 			return true
 		},
 	}
+	queryGameID = "id"
 )
 
-// WSGameDto is the game data payload sent to websockets clients
-type WSGameDto struct {
-	ID       *uuid.UUID      `json:"id"`
-	Settings *game.Settings  `json:"settings"`
-	Sessions []*game.Session `json:"sessions"`
+var (
+	ErrRoomNotFound = errors.New("game room not found")
+)
+
+type GameSocket struct {
+	rooms map[string]*Room
+	Fgh   game.FindGameQueryHandler
 }
 
-// GameRoom is a room of connected and currently playing players
-type GameRoom struct {
-	ID      string
-	players []*websocket.Conn
-}
-
-func (g *GameRoom) removePlayerAt(i int) {
-	g.players[i] = g.players[len(g.players)-1]
-	g.players[len(g.players)-1] = nil
-	g.players = g.players[:len(g.players)-1]
-}
-
-func (g *GameRoom) Close() error {
+func (g *GameSocket) Close() error {
 	var err error
-	for _, player := range g.players {
-		err = player.Close()
+	for id, room := range g.rooms {
+		err = room.Close()
+		delete(g.rooms, id)
 	}
 	return err
 }
 
-type GameSocket struct {
-	rooms map[string]*GameRoom
+func sessionSlice(sessionMap map[game.Player]*game.Session) []*game.Session {
+	s := make([]*game.Session, len(sessionMap))
+	i := 0
+	for _, sess := range sessionMap {
+		s[i] = sess
+		i++
+	}
+	return s
 }
 
 func (g *GameSocket) UpdateGameState(ev game.Event, gm *game.Game) error {
-	var errs = make([]error, 0)
+	// check if room exists
 	if room, ok := g.rooms[gm.ID.String()]; ok {
-		for pi, player := range room.players {
-			// send event and data to websocket
-			sessions := func() []*game.Session {
-				s := make([]*game.Session, len(gm.PlayerSessions))
-				i := 0
-				for _, sess := range gm.PlayerSessions {
-					s[i] = sess
-					i++
-				}
-				return s
-			}()
-			err := player.WriteJSON(map[string]any{
-				"event": ev,
-				"data": WSGameDto{
-					ID:       &gm.ID,
-					Settings: &gm.Settings,
-					Sessions: sessions,
-				},
-			})
-			if err != nil {
-				if _, ok := err.(*websocket.CloseError); ok {
-					_ = player.Close()
-					room.removePlayerAt(pi)
-				}
-				errs = append(errs, err)
-			}
+		// create the sessions slice from the map
+		msg := WSGameDto{
+			ID:       &gm.ID,
+			Settings: &gm.Settings,
+			Sessions: sessionSlice(gm.PlayerSessions),
 		}
-	}
-	if len(errs) > 0 {
-		strs := func(errs []error) (t []string) {
-			for _, err := range errs {
-				t = append(t, err.Error())
-			}
-			return t
-		}(errs)
-		return errors.New(strings.Join(strs, "\n"))
-	}
-
-	return nil
-}
-
-// tidyRooms removes rooms that have no players
-// connected to them at intervals to prevent memory leaks
-func (g *GameSocket) tidyRooms(duration time.Duration) {
-	for {
-		time.Sleep(duration)
-		for id, room := range g.rooms {
-			if len(room.players) == 0 {
-				delete(g.rooms, id)
-			}
+		payload := WSPayload{
+			Event: ev,
+			Data:  msg,
 		}
+		room.broadcast <- payload
+		return nil
+	} else {
+		return ErrRoomNotFound
 	}
 }
 
 // ServeHTTP handles websocket requests for GameSocket
 // and connects the user to a game session if correct id is produced
 func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	idList, ok := r.URL.Query()["id"]
+	if !ok || len(idList) < 1 {
+		fmt.Println("error getting game id")
+		return
+	}
+
+	id := idList[0]              // get the first id
+	_uuid, err := uuid.Parse(id) // convert to UUID
+	if err != nil {
+		fmt.Println("error parsing game id")
+		return
+	}
+
+	// upgrade the connection to a websocket
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println("error upgrading to websockets", err)
 		return
 	}
-	v := mux.Vars(r)
-	if id, ok := v["id"]; !ok {
-		fmt.Println("error getting game id")
-		return
-	} else {
-		if room, ok := g.rooms[id]; ok {
-			room.players = append(room.players, conn)
-		} else {
-			g.rooms[id] = &GameRoom{id, []*websocket.Conn{conn}}
+	room, ok := g.rooms[id]
+	if !ok {
+		// check if such a game exists
+		_, err := g.Fgh.Handle(game.FindGameQuery{ID: _uuid})
+		if err != nil {
+			fmt.Println("error finding game", err)
+			return
 		}
+		// create new room
+		g.rooms[id] = NewRoom(id)
 	}
+	room.join <- NewClient(room, conn)
 }
 
-func NewGameSocket() *GameSocket {
-	sock := &GameSocket{make(map[string]*GameRoom)}
-	go sock.tidyRooms(time.Hour)
+func NewGameSocket(fgh game.FindGameQueryHandler) *GameSocket {
+	sock := &GameSocket{make(map[string]*Room), fgh}
 	return sock
 }

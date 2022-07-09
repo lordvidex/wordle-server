@@ -5,17 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a30c929b-8e67-4a4f-99dd-7cb7dbdb5ef7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/db/pg/mapper/game.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/game/findgame.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/websockets/client.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/websockets/message.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/websockets/room.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/words/addword.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/words/getword.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/words/repository.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/words/usecases.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/server/app/app.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/app/app.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/server/app/wire_gen.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/game.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/game.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/gen/db.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/gen/db.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/db/pg/gen/game.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/gen/game.sql.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/db/pg/gen/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/gen/models.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/db/pg/gen/word.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/gen/word.sql.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/db/pg/queries/game.sql" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/queries/game.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/db/pg/queries/word.sql" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/queries/word.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/db/pg/schema/game.sql" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/schema/game.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/db/pg/schema/word.sql" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/schema/word.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/game/game.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/game/game.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sqlc.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/sqlc.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/game/usecases.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/game/usecases.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/websockets/gamesocket.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/websockets/gamesocket.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/words/word.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/words/word.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,6 +71,11 @@
     "go.import.settings.migrated": "true",
     "last_opened_file_path": "/Users/lordvidex/GoProjects/wordle-server",
     "settings.editor.selected.configurable": "preferences.pluginManager"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
   }
 }]]></component>
   <component name="RecentsManager">
@@ -71,7 +87,7 @@
       <recent name="$PROJECT_DIR$/internal" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Test.TestSession_Complete in github.com/lordvidex/wordle-wf/internal/game">
+  <component name="RunManager" selected="Go Build.go build github.com/lordvidex/wordle-wf/cmd/server">
     <configuration name="go build github.com/lordvidex/wordle-wf/cmd/server" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="wordleServer" />
       <working_directory value="$PROJECT_DIR$" />
@@ -131,13 +147,20 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build github.com/lordvidex/wordle-wf/cmd/server" />
         <item itemvalue="Go Test.TestSession_Complete in github.com/lordvidex/wordle-wf/internal/game" />
         <item itemvalue="Go Test.TestWord_SetLetterStatus in github.com/lordvidex/wordle-wf/internal/words" />
         <item itemvalue="Go Test.TestWord_CompareToCorrect in github.com/lordvidex/wordle-wf/internal/words" />
-        <item itemvalue="Go Build.go build github.com/lordvidex/wordle-wf/cmd/server" />
         <item itemvalue="Go Test.TestGetRandomWord/should_return_a_random_word_6_times in github.com/lordvidex/wordle-wf/internal/words" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="SQLScriptSettings">
+    <option name="matrix">
+      <map>
+        <entry key="POSTGRES.CreateComplete" value="CreateOrReplace=1" />
+      </map>
+    </option>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TypeScriptGeneratedFilesManager">

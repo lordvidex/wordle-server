@@ -27,20 +27,20 @@ type CreateWordParams struct {
 	Lettersjson pgtype.JSON
 }
 
-func (q *Queries) CreateWord(ctx context.Context, arg CreateWordParams) (Word, error) {
+func (q *Queries) CreateWord(ctx context.Context, arg CreateWordParams) (*Word, error) {
 	row := q.db.QueryRow(ctx, createWord, arg.Wordid, arg.Timeplayed, arg.Lettersjson)
 	var i Word
 	err := row.Scan(&i.ID, &i.TimePlayed, &i.Letters)
-	return i, err
+	return &i, err
 }
 
 const getWord = `-- name: GetWord :one
 SELECT id, time_played, letters from word WHERE id=@wordId
 `
 
-func (q *Queries) GetWord(ctx context.Context) (Word, error) {
+func (q *Queries) GetWord(ctx context.Context) (*Word, error) {
 	row := q.db.QueryRow(ctx, getWord)
 	var i Word
 	err := row.Scan(&i.ID, &i.TimePlayed, &i.Letters)
-	return i, err
+	return &i, err
 }

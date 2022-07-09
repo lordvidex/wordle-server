@@ -24,8 +24,8 @@ type GamePlayer struct {
 
 type GameSession struct {
 	ID       uuid.UUID
-	GameID   uuid.NullUUID
-	PlayerID uuid.NullUUID
+	GameID   uuid.UUID
+	PlayerID uuid.UUID
 }
 
 type GameSessionGuess struct {
@@ -37,9 +37,9 @@ type GameSessionGuess struct {
 type GameSetting struct {
 	ID                       uuid.UUID
 	GameID                   uuid.NullUUID
-	WordLength               sql.NullInt32
-	Trials                   sql.NullInt32
-	PlayerCount              sql.NullInt32
+	WordLength               sql.NullInt16
+	Trials                   sql.NullInt16
+	PlayerCount              sql.NullInt16
 	HasAnalytics             sql.NullBool
 	ShouldRecordTime         sql.NullBool
 	CanViewOpponentsSessions sql.NullBool
