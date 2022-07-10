@@ -86,7 +86,7 @@ func Start() {
 }
 
 func registerAsset(router *mux.Router) {
-	router.Handle("/", http.FileServer(http.Dir("./resources")))
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./resources")))
 }
 
 func registerWS(router *mux.Router, ws http.Handler) {
