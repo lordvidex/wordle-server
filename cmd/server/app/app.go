@@ -14,17 +14,21 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/middleware"
 	"github.com/lordvidex/wordle-wf/internal/websockets"
 	"github.com/lordvidex/wordle-wf/internal/words"
+	"github.com/spf13/viper"
 	"log"
 	"net/http"
 )
 
-func connectDB() (*pgx.Conn, error) {
-	dsn := "postgres://postgres:@localhost:5432/test?sslmode=disable"
-	// dsn := "unix://user:pass@dbname/var/run/postgresql/.s.PGSQL.5432"
-	//pgDB := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+func connectDB(c *DBConfig) (*pgx.Conn, error) {
+	var dsn string
+	if c.Url != "" {
+		dsn = c.Url
+	} else {
+		dsn = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", c.User, c.Password, c.Host, 5432, c.DBName)
+	}
 	pgConn, err := pgx.Connect(context.Background(), dsn)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to connect to database: %v\n", err)
+		return nil, fmt.Errorf("unable to connect to database: %v\n", err)
 	}
 	err = pgConn.Ping(context.Background())
 	if err != nil {
@@ -35,8 +39,12 @@ func connectDB() (*pgx.Conn, error) {
 }
 
 func Start() {
+	conf, err := loadConfig()
+	if err != nil {
+		log.Fatal("error occured loading configs", err)
+	}
 	// connect to database
-	pgConn, err := connectDB()
+	pgConn, err := connectDB(conf.DB)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -115,4 +123,21 @@ func printEndpoints(r *mux.Router) {
 	}); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// loadConfig loads the config from the environment variables or vault
+func loadConfig() (*Config, error) {
+	conf := &Config{
+		DB: NewDBConfig(),
+	}
+	viper.AddConfigPath(".")
+	viper.SetConfigType("env")
+	viper.SetConfigName(".env")
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		return nil, err
+	}
+	err = viper.Unmarshal(conf.DB)
+	return conf, err
 }

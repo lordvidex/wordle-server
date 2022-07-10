@@ -5,28 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a30c929b-8e67-4a4f-99dd-7cb7dbdb5ef7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/internal/db/pg/mapper/game.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/game/findgame.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/websockets/client.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/websockets/message.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/websockets/room.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/words/addword.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/words/getword.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/words/repository.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/words/usecases.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cmd/server/app/config.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3f9af386-3308-413a-ae09-8fc5e33896cb.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3f9af386-3308-413a-ae09-8fc5e33896cb.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/3f9af386-3308-413a-ae09-8fc5e33896cb/storage_v2/_src_/database/test.kkQ2AA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/3f9af386-3308-413a-ae09-8fc5e33896cb/storage_v2/_src_/database/test.kkQ2AA/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmd/server/app/app.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/server/app/app.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmd/server/app/wire_gen.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/db/pg/game.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/game.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/db/pg/gen/db.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/gen/db.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/db/pg/gen/game.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/gen/game.sql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/db/pg/gen/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/gen/models.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/db/pg/gen/word.sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/gen/word.sql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/db/pg/queries/game.sql" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/queries/game.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/db/pg/schema/game.sql" beforeDir="false" afterPath="$PROJECT_DIR$/internal/db/pg/schema/game.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/game/usecases.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/game/usecases.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/websockets/gamesocket.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/websockets/gamesocket.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/words/word.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/words/word.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/schema/game.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/db/pg/schema/word.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sqlc.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/sqlc.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,37 +46,37 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultGoTemplateProperty": "Go File",
-    "DefaultHtmlFileTemplate": "HTML File",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.go.format.on.save.advertiser.fired": "true",
-    "RunOnceActivity.go.formatter.settings.were.checked": "true",
-    "RunOnceActivity.go.migrated.go.modules.settings": "true",
-    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "configurable..is.expanded": "true",
-    "configurable.GoLibrariesConfigurable.is.expanded": "true",
-    "go.import.settings.migrated": "true",
-    "last_opened_file_path": "/Users/lordvidex/GoProjects/wordle-server",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.format.on.save.advertiser.fired&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.watchers.conflict.with.on.save.actions.check.performed&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;configurable..is.expanded&quot;: &quot;true&quot;,
+    &quot;configurable.GoLibrariesConfigurable.is.expanded&quot;: &quot;true&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/lordvidex/GoProjects/wordle-server&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/internal/config" />
       <recent name="$PROJECT_DIR$/internal/db/mongo" />
       <recent name="$PROJECT_DIR$/internal/db/game" />
       <recent name="$PROJECT_DIR$/internal/game" />
       <recent name="$PROJECT_DIR$/internal/game/commands" />
-      <recent name="$PROJECT_DIR$/internal" />
     </key>
   </component>
   <component name="RunManager" selected="Go Build.go build github.com/lordvidex/wordle-wf/cmd/server">

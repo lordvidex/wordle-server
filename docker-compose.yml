@@ -12,3 +12,24 @@ services:
       - "8080:8080"
     volumes:
       - .:/app
+    depends_on:
+      - pg-dev
+  pg-dev:
+    container_name: wordle-pg
+    restart: always
+    image: postgres:14.3
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./internal/db/pg/migration:/migrations
+    depends_on:
+      - pg-dev
+    command: ["-path", "/migrations", "-database",  "${POSTGRES_URL}", "up"]
+
+volumes:
+  db:
+    driver: local

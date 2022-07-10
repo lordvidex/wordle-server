@@ -1,6 +1,6 @@
 version: "2"
 sql:
- - schema: ./internal/db/pg/schema/
+ - schema: ./internal/db/pg/migration/
    queries: ./internal/db/pg/queries/
    engine: postgresql
    gen:
@@ -10,12 +10,3 @@ sql:
        sql_package: pgx/v4
        emit_empty_slices: true
        emit_result_struct_pointers: true
-#version: "1"
-#packages:
-#  - name: "pg"
-#    path: ./internal/db/pg/gen/
-#    queries: ./internal/db/pg/queries/
-#    schema: ./internal/db/pg/schema/
-#    engine: postgresql
-#    sql_package: pgx/v4
-#    emit_empty_slices: true
