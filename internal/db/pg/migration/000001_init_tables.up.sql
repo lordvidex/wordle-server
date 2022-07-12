@@ -27,9 +27,17 @@ CREATE TABLE IF NOT EXISTS game_settings (
                                              can_view_opponents_sessions BOOLEAN DEFAULT TRUE
 );
 
+CREATE TABLE IF NOT EXISTS wordlewf_user (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS game_player (
-                                           id UUID PRIMARY KEY NOT NULL,
-                                           name TEXT NOT NULL
+    id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES wordlewf_user(id) NOT NULL,
+    name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS game_session (

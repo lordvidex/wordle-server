@@ -148,7 +148,7 @@ func (q *Queries) GetGameAndSettings(ctx context.Context, id uuid.UUID) (*GetGam
 
 const listSessionsInGame = `-- name: ListSessionsInGame :many
 SELECT
-    game_session.id, game_id, player_id, game.id, word_id, game_player.id, name
+    game_session.id, game_id, player_id, game.id, word_id, game_player.id, user_id, name
 FROM
     game_session
     INNER JOIN game on game_session.game_id = game.id
@@ -164,6 +164,7 @@ type ListSessionsInGameRow struct {
 	ID_2     uuid.UUID
 	WordID   uuid.NullUUID
 	ID_3     uuid.UUID
+	UserID   uuid.UUID
 	Name     string
 }
 
@@ -183,6 +184,7 @@ func (q *Queries) ListSessionsInGame(ctx context.Context, gameID uuid.UUID) ([]*
 			&i.ID_2,
 			&i.WordID,
 			&i.ID_3,
+			&i.UserID,
 			&i.Name,
 		); err != nil {
 			return nil, err

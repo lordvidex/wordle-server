@@ -18,8 +18,9 @@ type Game struct {
 }
 
 type GamePlayer struct {
-	ID   uuid.UUID
-	Name string
+	ID     uuid.UUID
+	UserID uuid.UUID
+	Name   string
 }
 
 type GameSession struct {
@@ -49,4 +50,11 @@ type Word struct {
 	ID         uuid.UUID
 	TimePlayed time.Time
 	Letters    pgtype.JSON
+}
+
+type WordlewfUser struct {
+	ID       uuid.UUID
+	Name     string
+	Email    string
+	Password string
 }
