@@ -5,17 +5,12 @@ import (
 	"net/http"
 )
 
-func RegisterHandler(router *mux.Router) {
-	router.HandleFunc("/login", LoginHandler).Methods("POST")
-	router.HandleFunc("/logout", LogoutHandler).Methods("POST")
-	// router.HandleFunc("/register", RegisterHandler).Methods("POST")
+func RegisterHTTPHandler(router *mux.Router) {
+	router.HandleFunc("/login", LoginHTTPHandler).Methods("POST")
+	// router.HandleFunc("/register", RegisterHTTPHandler).Methods("POST")
 	// router.HandleFunc("/check", CheckHandler).Methods("POST")
 }
 
-func LoginHandler(http.ResponseWriter, *http.Request) {
-
-}
-
-func LogoutHandler(http.ResponseWriter, *http.Request) {
+func LoginHTTPHandler(http.ResponseWriter, *http.Request) {
 
 }

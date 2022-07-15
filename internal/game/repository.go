@@ -16,7 +16,7 @@ type Repository interface {
 	// Start starts a game and begins monitoring user's sessions
 	Start(gameID string) error
 
-	// Find returns a game by its ID only from it's table UNLESS
+	// FindByID returns a game by its ID only from it's table UNLESS
 	// eager is provided.
 	// eager should be interfaces of the models that are to be eagerly loaded
 	FindByID(gameId string, eager ...interface{}) (*Game, error)

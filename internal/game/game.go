@@ -26,7 +26,12 @@ const (
 )
 
 type Game struct {
+	// ID is the app specific identifier for a game in the app
 	ID uuid.UUID
+
+	// InviteID makes sharing of the app easy among friends
+	InviteID string
+
 	// Word is the correct word that should be guessed
 	Word words.Word
 

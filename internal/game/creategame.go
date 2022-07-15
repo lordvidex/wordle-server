@@ -12,16 +12,18 @@ type CreateGameHandler interface {
 }
 
 type createGameHandler struct {
-	repo Repository
+	repo              Repository
+	inviteIdGenerator InviteIDGenerator
 }
 
-func NewCreateGameHandler(repo Repository) CreateGameHandler {
-	return &createGameHandler{repo}
+func NewCreateGameHandler(repo Repository, inviteIdGenerator InviteIDGenerator) CreateGameHandler {
+	return &createGameHandler{repo, inviteIdGenerator}
 }
 
 func (h *createGameHandler) Handle(command CreateGameCommand) (*Game, error) {
 	game := &Game{
 		ID:       uuid.New(),
+		InviteID: h.inviteIdGenerator.Generate(),
 		Settings: command.Settings,
 	}
 	game, err := h.repo.Create(game)
