@@ -39,6 +39,19 @@ func (l Letters) Keys() []rune {
 	return runes
 }
 
+// Equal returns true if the runes that make of a Word and their positions are the same
+func (l Letters) Equal(other Letters) bool {
+	if len(l) != len(other) {
+		return false
+	}
+	for i, v := range l {
+		if v.Rune != other[i].Rune {
+			return false
+		}
+	}
+	return true
+}
+
 // Values returns the values of the Letters map
 func (l Letters) Values() []LetterStatus {
 	values := make([]LetterStatus, len(l))

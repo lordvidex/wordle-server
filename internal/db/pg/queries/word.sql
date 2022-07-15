@@ -1,9 +1,9 @@
 -- name: GetWord :one
-SELECT * from word WHERE id=@wordId;
+SELECT * from word WHERE id=$1;
 
 -- name: CreateWord :one
 INSERT INTO word(
     id,
     time_played, 
     letters
-) VALUES (@wordId, @timePlayed, @lettersJSON) RETURNING *;
+) VALUES ($1, $2, $3) RETURNING *;

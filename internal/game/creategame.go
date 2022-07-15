@@ -3,7 +3,7 @@ package game
 import "github.com/google/uuid"
 
 type CreateGameCommand struct {
-	Player *Player
+	Player   *Player
 	Settings Settings
 }
 
@@ -12,7 +12,7 @@ type CreateGameHandler interface {
 }
 
 type createGameHandler struct {
-	repo     Repository
+	repo Repository
 }
 
 func NewCreateGameHandler(repo Repository) CreateGameHandler {
@@ -21,12 +21,17 @@ func NewCreateGameHandler(repo Repository) CreateGameHandler {
 
 func (h *createGameHandler) Handle(command CreateGameCommand) (*Game, error) {
 	game := &Game{
-		ID: uuid.New(),
+		ID:       uuid.New(),
 		Settings: command.Settings,
 	}
 	game, err := h.repo.Create(game)
 	if err != nil {
 		return nil, err
 	}
-	
+	// add the player that created the game
+	err = h.repo.Join(game.ID.String(), command.Player)
+	if err != nil {
+		return nil, err
+	}
+	return game, nil
 }

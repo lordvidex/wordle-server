@@ -13,26 +13,24 @@ import (
 )
 
 type Game struct {
-	ID     uuid.UUID
-	WordID uuid.NullUUID
+	ID        uuid.UUID
+	InviteID  sql.NullString
+	WordID    uuid.NullUUID
+	StartTime sql.NullTime
+	EndTime   sql.NullTime
 }
 
 type GamePlayer struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
-	Name   string
+	ID      uuid.UUID
+	UserID  uuid.UUID
+	GameID  uuid.UUID
+	Name    string
+	Deleted sql.NullBool
 }
 
-type GameSession struct {
-	ID       uuid.UUID
-	GameID   uuid.UUID
+type GamePlayerWord struct {
 	PlayerID uuid.UUID
-}
-
-type GameSessionGuess struct {
-	ID            uuid.UUID
-	GameSessionID uuid.NullUUID
-	WordID        uuid.NullUUID
+	WordID   uuid.UUID
 }
 
 type GameSetting struct {
