@@ -34,14 +34,19 @@ func (q *Queries) AddGuess(ctx context.Context, arg AddGuessParams) error {
 
 const createGame = `-- name: CreateGame :exec
 
-INSERT INTO game (id) VALUES ($1) RETURNING id, invite_id, word_id, start_time, end_time
+INSERT INTO game (id, invite_id) VALUES ($1, $2) RETURNING id, invite_id, word_id, start_time, end_time
 `
+
+type CreateGameParams struct {
+	ID       uuid.UUID
+	InviteID string
+}
 
 //
 // CREATE GAME
 //
-func (q *Queries) CreateGame(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, createGame, id)
+func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) error {
+	_, err := q.db.Exec(ctx, createGame, arg.ID, arg.InviteID)
 	return err
 }
 
@@ -112,6 +117,19 @@ func (q *Queries) CreateGameSettings(ctx context.Context, arg CreateGameSettings
 	return err
 }
 
+const deleteGame = `-- name: DeleteGame :exec
+
+DELETE FROM game WHERE id = $1
+`
+
+//
+// DELETE GAME
+//
+func (q *Queries) DeleteGame(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteGame, id)
+	return err
+}
+
 const endGame = `-- name: EndGame :exec
 
 UPDATE
@@ -137,7 +155,16 @@ func (q *Queries) EndGame(ctx context.Context, arg EndGameParams) error {
 
 const findById = `-- name: FindById :one
 
-SELECT game.id, invite_id, word_id, start_time, end_time, game_settings.id, game_id, word_length, trials, player_count, has_analytics, should_record_time, can_view_opponents_sessions, word.id, time_played, letters FROM game
+SELECT game.id, game.invite_id, game.word_id, game.start_time, game.end_time,
+       game_settings.word_length,
+       game_settings.trials,
+       game_settings.player_count,
+       game_settings.has_analytics,
+       game_settings.should_record_time,
+       game_settings.can_view_opponents_sessions,
+       word.time_played,
+       word.letters
+       FROM game
     INNER JOIN game_settings ON game_settings.game_id = game.id
     LEFT JOIN word ON word.id = game.word_id
 WHERE game.id = $1 LIMIT 1
@@ -145,19 +172,16 @@ WHERE game.id = $1 LIMIT 1
 
 type FindByIdRow struct {
 	ID                       uuid.UUID
-	InviteID                 sql.NullString
+	InviteID                 string
 	WordID                   uuid.NullUUID
 	StartTime                sql.NullTime
 	EndTime                  sql.NullTime
-	ID_2                     uuid.UUID
-	GameID                   uuid.NullUUID
 	WordLength               sql.NullInt16
 	Trials                   sql.NullInt16
 	PlayerCount              sql.NullInt16
 	HasAnalytics             sql.NullBool
 	ShouldRecordTime         sql.NullBool
 	CanViewOpponentsSessions sql.NullBool
-	ID_3                     uuid.NullUUID
 	TimePlayed               sql.NullTime
 	Letters                  pgtype.JSON
 }
@@ -174,15 +198,12 @@ func (q *Queries) FindById(ctx context.Context, id uuid.UUID) (*FindByIdRow, err
 		&i.WordID,
 		&i.StartTime,
 		&i.EndTime,
-		&i.ID_2,
-		&i.GameID,
 		&i.WordLength,
 		&i.Trials,
 		&i.PlayerCount,
 		&i.HasAnalytics,
 		&i.ShouldRecordTime,
 		&i.CanViewOpponentsSessions,
-		&i.ID_3,
 		&i.TimePlayed,
 		&i.Letters,
 	)
@@ -197,7 +218,7 @@ WHERE invite_id LIKE '%' || $1 || '%'
 
 type FindByInviteIdRow struct {
 	ID                       uuid.UUID
-	InviteID                 sql.NullString
+	InviteID                 string
 	WordID                   uuid.NullUUID
 	StartTime                sql.NullTime
 	EndTime                  sql.NullTime
@@ -246,24 +267,44 @@ func (q *Queries) FindByInviteId(ctx context.Context, dollar_1 sql.NullString) (
 }
 
 const getPlayersInGame = `-- name: GetPlayersInGame :many
-SELECT id, user_id, game_id, name, deleted FROM game_player WHERE game_id = $1
+SELECT game_player.id, game_player.user_id, game_player.game_id, game_player.name, game_player.deleted,
+       wu.email,
+       wu.name as user_name,
+       wu.password
+FROM game_player
+    LEFT JOIN wordlewf_user wu on game_player.user_id = wu.id
+WHERE game_id = $1
 `
 
-func (q *Queries) GetPlayersInGame(ctx context.Context, gameID uuid.UUID) ([]*GamePlayer, error) {
+type GetPlayersInGameRow struct {
+	ID       uuid.UUID
+	UserID   uuid.UUID
+	GameID   uuid.UUID
+	Name     string
+	Deleted  sql.NullBool
+	Email    sql.NullString
+	UserName sql.NullString
+	Password sql.NullString
+}
+
+func (q *Queries) GetPlayersInGame(ctx context.Context, gameID uuid.UUID) ([]*GetPlayersInGameRow, error) {
 	rows, err := q.db.Query(ctx, getPlayersInGame, gameID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*GamePlayer{}
+	items := []*GetPlayersInGameRow{}
 	for rows.Next() {
-		var i GamePlayer
+		var i GetPlayersInGameRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.UserID,
 			&i.GameID,
 			&i.Name,
 			&i.Deleted,
+			&i.Email,
+			&i.UserName,
+			&i.Password,
 		); err != nil {
 			return nil, err
 		}

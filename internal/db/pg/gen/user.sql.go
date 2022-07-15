@@ -12,12 +12,44 @@ import (
 	"github.com/google/uuid"
 )
 
-const getPlayerByName = `-- name: GetPlayerByName :many
-SELECT id, name, email, password FROM wordlewf_user WHERE name ILIKE '%$1%'
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, name, email, password FROM wordlewf_user WHERE email = $1
 `
 
-func (q *Queries) GetPlayerByName(ctx context.Context) ([]*WordlewfUser, error) {
-	rows, err := q.db.Query(ctx, getPlayerByName)
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*WordlewfUser, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
+	var i WordlewfUser
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+	)
+	return &i, err
+}
+
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, name, email, password FROM wordlewf_user WHERE id = $1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (*WordlewfUser, error) {
+	row := q.db.QueryRow(ctx, getUserByID, id)
+	var i WordlewfUser
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+	)
+	return &i, err
+}
+
+const getUserByName = `-- name: GetUserByName :many
+SELECT id, name, email, password FROM wordlewf_user WHERE name ILIKE '%' || $1 || '%'
+`
+
+func (q *Queries) GetUserByName(ctx context.Context, dollar_1 sql.NullString) ([]*WordlewfUser, error) {
+	rows, err := q.db.Query(ctx, getUserByName, dollar_1)
 	if err != nil {
 		return nil, err
 	}
@@ -41,16 +73,15 @@ func (q *Queries) GetPlayerByName(ctx context.Context) ([]*WordlewfUser, error) 
 	return items, nil
 }
 
-const getPlayerGames = `-- name: GetPlayerGames :many
-SELECT game.id, invite_id, word_id, start_time, end_time, game_player.id, user_id, game_id, game_player.name, deleted, wordlewf_user.id, wordlewf_user.name, email, password from game
+const getUserGames = `-- name: GetUserGames :many
+SELECT game.id, game.invite_id, game.word_id, game.start_time, game.end_time, game_player.id, game_player.user_id, game_player.game_id, game_player.name, game_player.deleted from game
      INNER JOIN game_player ON game_player.game_id = game.id
-     INNER JOIN wordlewf_user ON wordlewf_user.id = game_player.user_id
-     WHERE wordlewf_user.name ILIKE '%' || $1 || '%'
+     WHERE game_player.user_id = $1
 `
 
-type GetPlayerGamesRow struct {
+type GetUserGamesRow struct {
 	ID        uuid.UUID
-	InviteID  sql.NullString
+	InviteID  string
 	WordID    uuid.NullUUID
 	StartTime sql.NullTime
 	EndTime   sql.NullTime
@@ -59,21 +90,17 @@ type GetPlayerGamesRow struct {
 	GameID    uuid.UUID
 	Name      string
 	Deleted   sql.NullBool
-	ID_3      uuid.UUID
-	Name_2    string
-	Email     string
-	Password  string
 }
 
-func (q *Queries) GetPlayerGames(ctx context.Context, dollar_1 sql.NullString) ([]*GetPlayerGamesRow, error) {
-	rows, err := q.db.Query(ctx, getPlayerGames, dollar_1)
+func (q *Queries) GetUserGames(ctx context.Context, userID uuid.UUID) ([]*GetUserGamesRow, error) {
+	rows, err := q.db.Query(ctx, getUserGames, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*GetPlayerGamesRow{}
+	items := []*GetUserGamesRow{}
 	for rows.Next() {
-		var i GetPlayerGamesRow
+		var i GetUserGamesRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.InviteID,
@@ -85,10 +112,6 @@ func (q *Queries) GetPlayerGames(ctx context.Context, dollar_1 sql.NullString) (
 			&i.GameID,
 			&i.Name,
 			&i.Deleted,
-			&i.ID_3,
-			&i.Name_2,
-			&i.Email,
-			&i.Password,
 		); err != nil {
 			return nil, err
 		}

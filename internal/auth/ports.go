@@ -1,6 +1,8 @@
 package auth
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 // Repository is an interface that provides data storage capabilities for User.
 type Repository interface {
@@ -21,7 +23,7 @@ type PasswordChecker interface {
 
 // TokenHelper generates a token given a payload.
 // and also decodes this token back to get the user payload.
-type TokenHelper[T any] interface {
-	Generate(payload T) Token
-	Decode(token Token) (T, error)
+type TokenHelper interface {
+	Generate(payload interface{}) Token
+	Decode(token Token) (interface{}, error)
 }

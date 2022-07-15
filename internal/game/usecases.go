@@ -20,7 +20,7 @@ type UseCases struct {
 	Commands Commands
 }
 
-func NewUseCases(repo Repository, g words.RandomHandler, n NotificationService) UseCases {
+func NewUseCases(repo Repository, g words.RandomHandler, i InviteIDGenerator, n NotificationService) UseCases {
 	return UseCases{
 		Queries: Queries{
 			FindGameQueryHandler:     NewFindGameByIDQueryHandler(repo),
@@ -29,7 +29,7 @@ func NewUseCases(repo Repository, g words.RandomHandler, n NotificationService) 
 		},
 		Commands: Commands{
 			StartGameHandler:  NewStartGameCommandHandler(repo, g, n),
-			CreateGameHandler: NewCreateGameHandler(repo),
+			CreateGameHandler: NewCreateGameHandler(repo, i),
 		},
 	}
 }

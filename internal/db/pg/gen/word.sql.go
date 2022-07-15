@@ -44,3 +44,30 @@ func (q *Queries) GetWord(ctx context.Context, id uuid.UUID) (*Word, error) {
 	err := row.Scan(&i.ID, &i.TimePlayed, &i.Letters)
 	return &i, err
 }
+
+const wordsPlayedBy = `-- name: WordsPlayedBy :many
+SELECT w.id, w.time_played, w.letters from game_player_word gpw
+         INNER JOIN game_player gp on gpw.player_id = gp.id
+         INNER JOIN word w on gpw.word_id = w.id
+WHERE gp.id = $1
+`
+
+func (q *Queries) WordsPlayedBy(ctx context.Context, id uuid.UUID) ([]*Word, error) {
+	rows, err := q.db.Query(ctx, wordsPlayedBy, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []*Word{}
+	for rows.Next() {
+		var i Word
+		if err := rows.Scan(&i.ID, &i.TimePlayed, &i.Letters); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

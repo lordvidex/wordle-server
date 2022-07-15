@@ -14,7 +14,7 @@ type UseCases struct {
 	Commands Commands
 }
 
-func NewUseCases(repo Repository, tokenHelper TokenHelper[User], passwordChecker PasswordChecker) UseCases {
+func NewUseCases(repo Repository, tokenHelper TokenHelper, passwordChecker PasswordChecker) UseCases {
 	return UseCases{
 		Queries: Queries{
 			GetUserByToken: NewUserTokenDecoder(tokenHelper),

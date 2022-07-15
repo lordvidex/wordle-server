@@ -54,6 +54,7 @@ func Start() {
 
 	// repositories
 	gameRepo := pg.NewGameRepository(pgConn)
+	//authRepo := pg.NewUserRepository(pgConn)
 
 	// services and dependencies
 	var gameSocket *websockets.GameSocket
@@ -68,9 +69,11 @@ func Start() {
 		adapters.NewLocalStringGenerator(),
 		nil,
 	)
+	//authUsecase := auth.NewUseCases(authRepo, nil, nil)
 	gameUsecase := game.NewUseCases(
 		gameRepo,
 		wordsUsecase.Queries.GetRandomWordHandler,
+		adapters.NewUniUriGenerator(),
 		gameSocket)
 
 	// adapters and external services

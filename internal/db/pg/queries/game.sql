@@ -3,7 +3,7 @@
 --
 
 -- name: CreateGame :exec
-INSERT INTO game (id) VALUES ($1) RETURNING *;
+INSERT INTO game (id, invite_id) VALUES ($1, $2) RETURNING *;
 
 -- name: CreateGameSettings :exec
 INSERT INTO
@@ -27,6 +27,13 @@ INSERT INTO
     game_player (user_id, game_id, name)
 VALUES
     ($1, $2, $3) RETURNING *;
+
+--
+-- DELETE GAME
+--
+
+-- name: DeleteGame :exec
+DELETE FROM game WHERE id = $1;
 
 --
 -- LEAVE GAME
@@ -73,7 +80,16 @@ INSERT INTO
 -- 
 
 -- name: FindById :one
-SELECT * FROM game
+SELECT game.*,
+       game_settings.word_length,
+       game_settings.trials,
+       game_settings.player_count,
+       game_settings.has_analytics,
+       game_settings.should_record_time,
+       game_settings.can_view_opponents_sessions,
+       word.time_played,
+       word.letters
+       FROM game
     INNER JOIN game_settings ON game_settings.game_id = game.id
     LEFT JOIN word ON word.id = game.word_id
 WHERE game.id = $1 LIMIT 1;
@@ -84,7 +100,13 @@ SELECT * FROM game
 WHERE invite_id LIKE '%' || $1 || '%';
 
 -- name: GetPlayersInGame :many
-SELECT * FROM game_player WHERE game_id = $1;
+SELECT game_player.*,
+       wu.email,
+       wu.name as user_name,
+       wu.password
+FROM game_player
+    LEFT JOIN wordlewf_user wu on game_player.user_id = wu.id
+WHERE game_id = $1;
 
 --
 -- End Game
