@@ -4,8 +4,20 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/words"
 )
 
-type StartGameRequestDto struct {
+type CreateGameRequestDto struct {
+	Settings   Settings `json:"settings"`
+	PlayerName string   `json:"playerName"`
+	UserID     int64    `json:"userId"`
+}
+
+type JoinOrLeaveGameRequestDto struct {
+	ID         int64  `json:"id"`
 	PlayerName string `json:"playerName"`
+	UserID     int64  `json:"userId"`
+}
+
+type StartGameRequestDto struct {
+	ID int64 `json:"id"`
 }
 
 type Queries struct {

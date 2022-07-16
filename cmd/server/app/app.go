@@ -22,6 +22,16 @@ import (
 	"github.com/spf13/viper"
 )
 
+type RouteBuilder struct {
+	router *mux.Router
+}
+
+func (routeBuilder *RouteBuilder) MakeRoute(path string, f func(RouteBuilder, *mux.Router)) *RouteBuilder {
+	apiRouter := routeBuilder.router.PathPrefix(path).Subrouter()
+	f(RouteBuilder{router: apiRouter}, apiRouter)
+	return routeBuilder
+}
+
 func connectDB(c *DBConfig) (*pgx.Conn, error) {
 	var dsn string
 	if c.Url != "" {
@@ -102,20 +112,49 @@ func registerApi(router *mux.Router, cases game.UseCases) {
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(middleware.HandleError, middleware.JSONContent, middleware.Logger)
 
-	apiRouter.HandleFunc("/start-game", func(w http.ResponseWriter, r *http.Request) {
-		request := game.StartGameRequestDto{}
-		jsonError := json.NewDecoder(r.Body).Decode(&request)
-		if jsonError != nil {
-			fmt.Printf("%+v\n", jsonError)
-		}
-		cases.Commands.StartGameCommandHandler.Handle(game.StartGameCommand{
-			Players: []game.Player{{ID: uuid.New(), Name: request.PlayerName}}, 
-			Settings: game.NewSettings(1)})
-	})
+	gameRouteBuilder := &RouteBuilder{router: apiRouter}
+	gameRouteBuilder.MakeRoute("/game", func(routeBuilder RouteBuilder, router *mux.Router) {
+		router.HandleFunc("/create", func(w http.ResponseWriter, r *http.Request) {
+			request := game.CreateGameRequestDto{}
+			jsonError := json.NewDecoder(r.Body).Decode(&request)
+			if jsonError != nil {
+				fmt.Printf("%+v\n", jsonError)
+			}
+			// TODO: Store the settings
+		})
 
-	apiRouter.HandleFunc("/games/{id: [0-9]+}", func(w http.ResponseWriter, r *http.Request) {
-		gameId := mux.Vars(r)["id"]
-		cases.Queries.FindGameQueryHandler.Handle(game.FindGameQuery{ID: uuid.Must(uuid.Parse(gameId))})
+		router.HandleFunc("/join", func(w http.ResponseWriter, r *http.Request) {
+			request := game.JoinOrLeaveGameRequestDto{}
+			jsonError := json.NewDecoder(r.Body).Decode(&request)
+			if jsonError != nil {
+				fmt.Printf("%+v\n", jsonError)
+			}
+			// TODO: Store the settings
+		})
+
+		router.HandleFunc("/start", func(w http.ResponseWriter, r *http.Request) {
+			request := game.StartGameRequestDto{}
+			jsonError := json.NewDecoder(r.Body).Decode(&request)
+			if jsonError != nil {
+				fmt.Printf("%+v\n", jsonError)
+			}
+			// TODO: Generate words to be guessed
+			// TODO: Initialize player sessions
+		})
+
+		router.HandleFunc("/leave", func(w http.ResponseWriter, r *http.Request) {
+			request := game.JoinOrLeaveGameRequestDto{}
+			jsonError := json.NewDecoder(r.Body).Decode(&request)
+			if jsonError != nil {
+				fmt.Printf("%+v\n", jsonError)
+			}
+			// TODO: Mark session as destroyed with a reason
+		})
+
+		router.HandleFunc("/{id: [0-9]+}", func(w http.ResponseWriter, r *http.Request) {
+			gameId := mux.Vars(r)["id"]
+			cases.Queries.FindGameQueryHandler.Handle(game.FindGameQuery{ID: uuid.Must(uuid.Parse(gameId))})
+		})
 	})
 
 	// words endpoint
