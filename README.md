@@ -2,6 +2,8 @@
 This part contains a cli command tool to test out some of the functionality of the game. It was quickly built to provide a simple interface to test out some of the game functionalities.
 ## Run
 - `go run ./cmd/client/main.go`
+## Example
+![CLI Sample](resources/client_sample.png)
 
 # Server
 ## Run
