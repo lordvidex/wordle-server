@@ -1,7 +1,6 @@
 package words
 
 import (
-	"encoding/json"
 	"errors"
 	"time"
 
@@ -67,23 +66,6 @@ func (l Letters) Values() []LetterStatus {
 		i++
 	}
 	return values
-}
-
-func (l *Letters) Scan(src interface{}) error {
-	var lx []*Letter
-	var err error
-	switch src.(type) {
-	case string:
-		err = json.Unmarshal([]byte(src.(string)), &lx)
-	case []byte:
-		err = json.Unmarshal(src.([]byte), &lx)
-	default:
-		err = ErrInvalidType
-	}
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 // Word contains a map of letters to their Status

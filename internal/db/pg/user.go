@@ -2,8 +2,9 @@ package pg
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
+
+	"github.com/google/uuid"
 	"github.com/lordvidex/wordle-wf/internal/auth"
 	pg "github.com/lordvidex/wordle-wf/internal/db/pg/gen"
 )

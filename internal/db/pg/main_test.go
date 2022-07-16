@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4"
-	pg "github.com/lordvidex/wordle-wf/internal/db/pg/gen"
 	"log"
 	"testing"
+
+	pg "github.com/lordvidex/wordle-wf/internal/db/pg/gen"
 )
 
 const (
