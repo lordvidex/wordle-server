@@ -6,10 +6,9 @@ import (
 )
 
 type StartGameCommand struct {
-	Players  []Player
-	Settings Settings
+	ID uuid.UUID
 }
-type StartGameCommandHandler interface {
+type StartGameHandler interface {
 	Handle(command StartGameCommand) error
 }
 
@@ -20,17 +19,11 @@ type startGameCommandHandler struct {
 }
 
 func (c *startGameCommandHandler) Handle(command StartGameCommand) error {
-	sessions := make(map[Player]*Session)
-	for _, player := range command.Players {
-		sessions[player] = NewSession(&player)
+	game, err := c.repo.FindByID(command.ID.String(), &Player{})
+	if err != nil {
+		return err
 	}
-	game := &Game{
-		ID:             uuid.New(),
-		PlayerSessions: sessions,
-		Settings:       command.Settings,
-		Word:           c.wordGen.GetRandomWord(command.Settings.WordLength),
-	}
-	game, err := c.repo.Create(game)
+	err = c.repo.Start(game.ID.String())
 	if err != nil {
 		return err
 	}
@@ -38,6 +31,6 @@ func (c *startGameCommandHandler) Handle(command StartGameCommand) error {
 
 }
 
-func NewStartGameCommandHandler(repo Repository, g words.RandomHandler, n NotificationService) StartGameCommandHandler {
+func NewStartGameCommandHandler(repo Repository, g words.RandomHandler, n NotificationService) StartGameHandler {
 	return &startGameCommandHandler{repo, g, n}
 }

@@ -9,12 +9,14 @@ type StartGameRequestDto struct {
 }
 
 type Queries struct {
-	FindGameQueryHandler     FindGameQueryHandler
+	FindGameQueryHandler     FindGameByIDQueryHandler
+	FindGameByInviteHandler  FindByInviteIDQueryHandler
 	FindAllGamesQueryHandler FindAllGamesQueryHandler
 }
 
 type Commands struct {
-	StartGameCommandHandler StartGameCommandHandler
+	StartGameHandler  StartGameHandler
+	CreateGameHandler CreateGameHandler
 }
 
 type UseCases struct {
@@ -25,11 +27,13 @@ type UseCases struct {
 func NewUseCases(repo Repository, g words.RandomHandler, n NotificationService) UseCases {
 	return UseCases{
 		Queries: Queries{
-			FindGameQueryHandler:     NewFindGameQueryHandler(repo),
+			FindGameQueryHandler:     NewFindGameByIDQueryHandler(repo),
+			FindGameByInviteHandler:  NewFindByInviteIDQueryHandler(repo),
 			FindAllGamesQueryHandler: NewFindAllGamesQueryHandler(repo),
 		},
 		Commands: Commands{
-			StartGameCommandHandler: NewStartGameCommandHandler(repo, g, n),
+			StartGameHandler:  NewStartGameCommandHandler(repo, g, n),
+			CreateGameHandler: NewCreateGameHandler(repo),
 		},
 	}
 }

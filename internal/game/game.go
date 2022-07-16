@@ -1,9 +1,11 @@
 package game
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/lordvidex/wordle-wf/internal/words"
-	"reflect"
 )
 
 // Event is an enum for all the events that Listeners need to subscribe to
@@ -18,25 +20,49 @@ const (
 	EventPlayerGuessed Event = "PlayerGuessed"
 )
 
+const (
+	// MaxDuration is the maximum duration a game can last
+	MaxDuration = time.Hour
+)
+
 type Game struct {
+	// ID is the app specific identifier for a game in the app
 	ID uuid.UUID
+
+	// InviteID makes sharing of the app easy among friends
+	InviteID string
+
 	// Word is the correct word that should be guessed
 	Word words.Word
+
 	// PlayerSessions represent each player's game session
 	PlayerSessions map[Player]*Session
+
 	// Settings represent the rules of the game as set by the room owner
 	Settings Settings
+
+	// StartTime is the time the game started,
+	// when the value is nil, this means the game has not started
+	StartTime *time.Time
+
+	// EndTime is the time the game ended,
+	// when the value is nil, this means the game has not ended
+	EndTime *time.Time
 }
 
-// HasEnded Game if all the players in the game have used up all their guesses
+// HasEnded Game if the Game.EndTime is set OR if the game has been active for an hour
+// Ended games do not receive rewards after completed Sessions and penalties are applied
+// to all sessions immediately after Game has ended.
 // or if they have guessed the word correctly
-func (g Game) HasEnded() bool {
-	for _, session := range g.PlayerSessions {
-		if !session.Complete(g.Settings.Trials, g.Word) {
-			return false
-		}
+func (g *Game) HasEnded() bool {
+	if g.HasStarted() {
+		return false
 	}
-	return true
+	return g.EndTime != nil && g.EndTime.After(g.StartTime.Add(MaxDuration))
+}
+
+func (g *Game) HasStarted() bool {
+	return g.StartTime != nil
 }
 
 type Session struct {

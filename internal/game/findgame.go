@@ -1,25 +1,33 @@
 package game
 
-import "github.com/google/uuid"
+import (
+	"errors"
+
+	"github.com/google/uuid"
+)
 
 type FindGameQuery struct {
-	ID uuid.UUID
+	ID     uuid.UUID
+	Invite string
 }
 
-type FindGameQueryHandler interface {
+type FindGameByIDQueryHandler interface {
 	Handle(query FindGameQuery) (*Game, error)
 }
 
-type findGameQueryHandler struct {
+type findGameByIDQueryHandler struct {
 	repo Repository
 }
 
-func (h *findGameQueryHandler) Handle(query FindGameQuery) (*Game, error) {
-	return h.repo.Find(query.ID.String())
+func (h *findGameByIDQueryHandler) Handle(query FindGameQuery) (*Game, error) {
+	if query.ID == uuid.Nil {
+		return nil, errors.New("game id is required")
+	}
+	return h.repo.FindByID(query.ID.String())
 }
 
-func NewFindGameQueryHandler(repo Repository) FindGameQueryHandler {
-	return &findGameQueryHandler{repo}
+func NewFindGameByIDQueryHandler(repo Repository) FindGameByIDQueryHandler {
+	return &findGameByIDQueryHandler{repo}
 }
 
 type FindAllGamesQueryHandler interface {
@@ -36,4 +44,23 @@ func (h *findAllGamesQueryHandler) Handle() ([]Game, error) {
 
 func NewFindAllGamesQueryHandler(repo Repository) FindAllGamesQueryHandler {
 	return &findAllGamesQueryHandler{repo}
+}
+
+type FindByInviteIDQueryHandler interface {
+	Handle(query FindGameQuery) ([]Game, error)
+}
+
+type findByInviteIDQueryHandler struct {
+	repo Repository
+}
+
+func (h *findByInviteIDQueryHandler) Handle(query FindGameQuery) ([]Game, error) {
+	if query.Invite == "" {
+		return nil, errors.New("invite is required")
+	}
+	return h.repo.FindByInviteID(query.Invite)
+}
+
+func NewFindByInviteIDQueryHandler(repo Repository) FindByInviteIDQueryHandler {
+	return &findByInviteIDQueryHandler{repo}
 }

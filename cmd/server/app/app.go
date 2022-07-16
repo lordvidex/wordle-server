@@ -123,7 +123,7 @@ func registerApi(router *mux.Router, cases game.UseCases) {
 
 	// auth endpoints
 	authRouter := apiRouter.PathPrefix("/auth").Subrouter()
-	auth.RegisterHandler(authRouter)
+	auth.RegisterHTTPHandler(authRouter)
 }
 
 // printEndpoints prints the endpoints that are exposed for api consumption

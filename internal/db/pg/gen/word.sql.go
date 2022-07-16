@@ -22,24 +22,24 @@ INSERT INTO word(
 `
 
 type CreateWordParams struct {
-	Wordid      uuid.UUID
-	Timeplayed  time.Time
-	Lettersjson pgtype.JSON
+	ID         uuid.UUID
+	TimePlayed time.Time
+	Letters    pgtype.JSON
 }
 
 func (q *Queries) CreateWord(ctx context.Context, arg CreateWordParams) (*Word, error) {
-	row := q.db.QueryRow(ctx, createWord, arg.Wordid, arg.Timeplayed, arg.Lettersjson)
+	row := q.db.QueryRow(ctx, createWord, arg.ID, arg.TimePlayed, arg.Letters)
 	var i Word
 	err := row.Scan(&i.ID, &i.TimePlayed, &i.Letters)
 	return &i, err
 }
 
 const getWord = `-- name: GetWord :one
-SELECT id, time_played, letters from word WHERE id=@wordId
+SELECT id, time_played, letters from word WHERE id=$1
 `
 
-func (q *Queries) GetWord(ctx context.Context) (*Word, error) {
-	row := q.db.QueryRow(ctx, getWord)
+func (q *Queries) GetWord(ctx context.Context, id uuid.UUID) (*Word, error) {
+	row := q.db.QueryRow(ctx, getWord, id)
 	var i Word
 	err := row.Scan(&i.ID, &i.TimePlayed, &i.Letters)
 	return &i, err
