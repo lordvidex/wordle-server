@@ -83,8 +83,8 @@ func TestIsEager(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := IsEager(tt.eagerType, tt.registeredTypes...); got != tt.want {
-				t.Errorf("IsEager() = %v, want %v", got, tt.want)
+			if got := isEager(tt.eagerType, tt.registeredTypes...); got != tt.want {
+				t.Errorf("isEager() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -1,3 +1,5 @@
+// Package mapper contains functions to map row types from pg.*
+// to game.*
 package mapper
 
 import (

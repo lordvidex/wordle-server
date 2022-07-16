@@ -9,9 +9,9 @@ import (
 )
 
 type userRepository struct {
-	*pg.Queries
-	pgxDB *pgx.Conn
-	c     context.Context
+	Queries *pg.Queries
+	pgxDB   *pgx.Conn
+	c       context.Context
 }
 
 func NewUserRepository(db *pgx.Conn) auth.Repository {
@@ -45,6 +45,17 @@ func (u *userRepository) FindByID(id uuid.UUID) (*auth.User, error) {
 }
 
 func (u *userRepository) Create(user *auth.User) (*auth.User, error) {
-	//TODO implement me
-	panic("implement me")
+	newUser, err := u.Queries.InsertUser(u.c, pg.InsertUserParams{
+		Name:     user.Name,
+		Email:    user.Email,
+		Password: user.Password,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &auth.User{
+		ID:    newUser.ID,
+		Name:  newUser.Name,
+		Email: newUser.Email,
+	}, nil
 }

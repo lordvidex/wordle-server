@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/lordvidex/wordle-wf/internal/adapters"
 	"github.com/lordvidex/wordle-wf/internal/auth"
 	"github.com/lordvidex/wordle-wf/internal/db/pg"
@@ -19,14 +19,14 @@ import (
 	"net/http"
 )
 
-func connectDB(c *DBConfig) (*pgx.Conn, error) {
+func connectDB(c *DBConfig) (*pgxpool.Pool, error) {
 	var dsn string
 	if c.Url != "" {
 		dsn = c.Url
 	} else {
 		dsn = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", c.User, c.Password, c.Host, 5432, c.DBName)
 	}
-	pgConn, err := pgx.Connect(context.Background(), dsn)
+	pgConn, err := pgxpool.Connect(context.Background(), dsn)
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to database: %v\n", err)
 	}
@@ -48,9 +48,7 @@ func Start() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func() {
-		_ = pgConn.Close(context.Background())
-	}()
+	defer pgConn.Close()
 
 	// repositories
 	gameRepo := pg.NewGameRepository(pgConn)

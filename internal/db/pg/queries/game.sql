@@ -95,9 +95,21 @@ SELECT game.*,
 WHERE game.id = $1 LIMIT 1;
 
 -- name: FindByInviteId :many
-SELECT * FROM game
+SELECT game.*,
+       gs.word_length,
+       gs.trials,
+       gs.player_count,
+       gs.has_analytics,
+       gs.should_record_time,
+       gs.can_view_opponents_sessions
+       FROM game
          INNER JOIN game_settings gs on game.id = gs.game_id
-WHERE invite_id LIKE '%' || $1 || '%';
+WHERE
+    game.end_time IS NULL -- not ended
+  AND
+    game.start_time IS NULL -- not started
+  AND
+    game.invite_id LIKE '%' || $1 || '%'; -- like invite id
 
 -- name: GetPlayersInGame :many
 SELECT game_player.*,

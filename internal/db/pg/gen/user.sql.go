@@ -122,3 +122,25 @@ func (q *Queries) GetUserGames(ctx context.Context, userID uuid.UUID) ([]*GetUse
 	}
 	return items, nil
 }
+
+const insertUser = `-- name: InsertUser :one
+INSERT INTO wordlewf_user (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email, password
+`
+
+type InsertUserParams struct {
+	Name     string
+	Email    string
+	Password string
+}
+
+func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (*WordlewfUser, error) {
+	row := q.db.QueryRow(ctx, insertUser, arg.Name, arg.Email, arg.Password)
+	var i WordlewfUser
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+	)
+	return &i, err
+}

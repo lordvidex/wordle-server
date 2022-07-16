@@ -211,9 +211,21 @@ func (q *Queries) FindById(ctx context.Context, id uuid.UUID) (*FindByIdRow, err
 }
 
 const findByInviteId = `-- name: FindByInviteId :many
-SELECT game.id, invite_id, word_id, start_time, end_time, gs.id, game_id, word_length, trials, player_count, has_analytics, should_record_time, can_view_opponents_sessions FROM game
+SELECT game.id, game.invite_id, game.word_id, game.start_time, game.end_time,
+       gs.word_length,
+       gs.trials,
+       gs.player_count,
+       gs.has_analytics,
+       gs.should_record_time,
+       gs.can_view_opponents_sessions
+       FROM game
          INNER JOIN game_settings gs on game.id = gs.game_id
-WHERE invite_id LIKE '%' || $1 || '%'
+WHERE
+    game.end_time IS NULL -- not ended
+  AND
+    game.start_time IS NULL -- not started
+  AND
+    game.invite_id LIKE '%' || $1 || '%'
 `
 
 type FindByInviteIdRow struct {
@@ -222,8 +234,6 @@ type FindByInviteIdRow struct {
 	WordID                   uuid.NullUUID
 	StartTime                sql.NullTime
 	EndTime                  sql.NullTime
-	ID_2                     uuid.UUID
-	GameID                   uuid.NullUUID
 	WordLength               sql.NullInt16
 	Trials                   sql.NullInt16
 	PlayerCount              sql.NullInt16
@@ -247,8 +257,6 @@ func (q *Queries) FindByInviteId(ctx context.Context, dollar_1 sql.NullString) (
 			&i.WordID,
 			&i.StartTime,
 			&i.EndTime,
-			&i.ID_2,
-			&i.GameID,
 			&i.WordLength,
 			&i.Trials,
 			&i.PlayerCount,
@@ -267,6 +275,7 @@ func (q *Queries) FindByInviteId(ctx context.Context, dollar_1 sql.NullString) (
 }
 
 const getPlayersInGame = `-- name: GetPlayersInGame :many
+
 SELECT game_player.id, game_player.user_id, game_player.game_id, game_player.name, game_player.deleted,
        wu.email,
        wu.name as user_name,
@@ -287,6 +296,7 @@ type GetPlayersInGameRow struct {
 	Password sql.NullString
 }
 
+// like invite id
 func (q *Queries) GetPlayersInGame(ctx context.Context, gameID uuid.UUID) ([]*GetPlayersInGameRow, error) {
 	rows, err := q.db.Query(ctx, getPlayersInGame, gameID)
 	if err != nil {

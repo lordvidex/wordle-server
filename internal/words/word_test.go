@@ -60,3 +60,31 @@ func TestWord_SetLetterStatus(t *testing.T) {
 		})
 	}
 }
+
+func TestLetters_Scan(t *testing.T) {
+	type args struct {
+		src interface{}
+	}
+	tests := []struct {
+		name    string
+		l       Letters
+		args    args
+		wantErr bool
+	}{
+		{name: "bytes test", l: Letters{}, args: args{src: []byte(`{"W": -1, "E": -1, "I": -1, "R": -1, "D": -1}`)}, wantErr: false},
+		{name: "string test", l: Letters{}, args: args{src: `{"W": -1, "E": -1, "I": -1, "R": -1, "D": -1}`}, wantErr: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.l.Scan(tt.args.src); (err != nil) != tt.wantErr {
+				t.Errorf("Scan() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if string(tt.l.Keys()) != "WEIRD" {
+				t.Errorf("Expected %s, got %v", "WEIRD", tt.l.Keys())
+			}
+			if len(tt.l.Values()) != 5 {
+				t.Errorf("values not scanned properly, expected 5, got %v", len(tt.l.Values()))
+			}
+		})
+	}
+}

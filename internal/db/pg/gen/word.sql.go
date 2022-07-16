@@ -50,6 +50,7 @@ SELECT w.id, w.time_played, w.letters from game_player_word gpw
          INNER JOIN game_player gp on gpw.player_id = gp.id
          INNER JOIN word w on gpw.word_id = w.id
 WHERE gp.id = $1
+ORDER BY w.time_played
 `
 
 func (q *Queries) WordsPlayedBy(ctx context.Context, id uuid.UUID) ([]*Word, error) {
