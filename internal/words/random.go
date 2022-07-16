@@ -17,11 +17,7 @@ type randomWordHandler struct {
 }
 
 func (h *randomWordHandler) GetRandomWord(length int) Word {
-	// generate a random string
-	word := h.generator.Generate(length)
-
-	// map all the letters to correct
-	return New(word)
+	return New(h.generator.Generate(length))
 }
 
 func NewRandomHandler(generator StringGenerator) RandomHandler {

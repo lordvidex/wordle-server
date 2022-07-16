@@ -6,21 +6,21 @@ import (
 )
 
 func TestSession_Complete(t *testing.T) {
-	corr := words.NewFromString("HELLO")
+	corr := words.New("HELLO")
 	testCases := []struct {
-		Guesses     []*words.Word
+		Guesses     []words.Word
 		Tries       int
 		Expected    bool
 		description string
 	}{
-		{[]*words.Word{}, 6, false, "no guesses"},
-		{[]*words.Word{
-			words.NewFromString("WORDS"),
-			words.NewFromString("HELLO"),
+		{[]words.Word{}, 6, false, "no guesses"},
+		{[]words.Word{
+			words.New("WORDS"),
+			words.New("HELLO"),
 		}, 6, true, "correct after two guesses"},
-		{[]*words.Word{
-			words.NewFromString("WORDS"),
-			words.NewFromString("HALLO"),
+		{[]words.Word{
+			words.New("WORDS"),
+			words.New("HALLO"),
 		}, 2, true, "max tries"},
 	}
 

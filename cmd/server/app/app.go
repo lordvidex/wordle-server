@@ -65,14 +65,11 @@ func Start() {
 	}()
 
 	// usecases and application layer components
-	wordsUsecase := words.NewUseCases(
-		adapters.NewLocalStringGenerator(),
-		nil,
-	)
+	wordsUsecase := words.NewUseCases(adapters.NewLocalStringGenerator())
 	//authUsecase := auth.NewUseCases(authRepo, nil, nil)
 	gameUsecase := game.NewUseCases(
 		gameRepo,
-		wordsUsecase.Queries.GetRandomWordHandler,
+		wordsUsecase.RandomWordHandler,
 		adapters.NewUniUriGenerator(),
 		gameSocket)
 

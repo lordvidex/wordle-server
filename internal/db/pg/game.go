@@ -10,7 +10,6 @@ import (
 	pg "github.com/lordvidex/wordle-wf/internal/db/pg/gen"
 	"github.com/lordvidex/wordle-wf/internal/db/pg/mapper"
 	"github.com/lordvidex/wordle-wf/internal/game"
-	"github.com/lordvidex/wordle-wf/internal/words"
 	"time"
 )
 
@@ -209,9 +208,6 @@ func (g *gameRepository) FindByInviteID(inviteId string, eager ...interface{}) (
 		}
 		// worker to get players in each game
 		fetchPlayerWords := false
-		if isEager([2]interface{}{words.Word{}, &words.Word{}}, eager) {
-			fetchPlayerWords = true
-		}
 		go g.playersInGameWorker(&gm, pipe, fetchPlayerWords, sessionPipe)
 	}
 	// assemble

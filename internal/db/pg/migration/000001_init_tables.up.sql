@@ -1,18 +1,10 @@
 -- for UUID
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- WORD
-CREATE TABLE word (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    time_played TIMESTAMPTZ NOT NULL,
-    -- keys are the letters in the word, values are either -1, 0, 1
-    letters JSON NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS game (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     invite_id VARCHAR(16) NOT NULL,
-    word_id UUID REFERENCES word(id),
+    word VARCHAR(255),
     start_time TIMESTAMPTZ,
     end_time TIMESTAMPTZ
 );
@@ -31,20 +23,16 @@ CREATE TABLE IF NOT EXISTS game_settings (
 CREATE TABLE IF NOT EXISTS wordlewf_user (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    points INTEGER DEFAULT 0,
+    email VARCHAR(255) NOT NULL, -- FIXME: change to username?
     password VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS game_player (
-    id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES wordlewf_user(id) NOT NULL,
-    game_id UUID REFERENCES game(id) NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    deleted BOOLEAN DEFAULT FALSE
-);
-
-CREATE TABLE game_player_word (
-    player_id UUID REFERENCES game_player(id),
-    word_id UUID REFERENCES word(id) ON DELETE CASCADE,
-    CONSTRAINT game_player_word_pkey PRIMARY KEY (player_id, word_id)
+CREATE TABLE IF NOT EXISTS wordlewf_user_games (
+    user_id UUID REFERENCES wordlewf_user(id) ON DELETE CASCADE,
+    game_id UUID REFERENCES game(id) ON DELETE CASCADE,
+    user_game_name VARCHAR(255) NOT NULL,
+    points INTEGER DEFAULT 0,
+    position INTEGER DEFAULT -1,
+    CONSTRAINT wordlewf_user_games_pk PRIMARY KEY (user_id, game_id)
 );
