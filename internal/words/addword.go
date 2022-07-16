@@ -23,7 +23,7 @@ func (h *addWordHandler) Handle(command AddWordCommand) error {
 	return h.repo.Add(command.Word)
 }
 func (h *addWordHandler) HandleString(command AddStringWordCommand) error {
-	word := NewFromString(command.Word)
-	wCommand := AddWordCommand{Word: *word}
+	word := New(command.Word)
+	wCommand := AddWordCommand{Word: word}
 	return h.Handle(wCommand)
 }

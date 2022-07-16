@@ -1,7 +1,5 @@
 package words
 
-import "github.com/google/uuid"
-
 // RandomHandler is an interface for getting a random word
 // given the length
 type RandomHandler interface {
@@ -23,19 +21,7 @@ func (h *randomWordHandler) GetRandomWord(length int) Word {
 	word := h.generator.Generate(length)
 
 	// map all the letters to correct
-	letters := make(Letters, len([]rune(word)))
-	for i, letter := range word {
-		letters[i] = &Letter{
-			Rune:   letter,
-			Status: Correct,
-		}
-	}
-
-	// return word
-	return Word{
-		ID:      uuid.New(),
-		Letters: letters,
-	}
+	return New(word)
 }
 
 func NewRandomHandler(generator StringGenerator) RandomHandler {
