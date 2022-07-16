@@ -4,6 +4,10 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/words"
 )
 
+type StartGameRequestDto struct {
+	PlayerName string `json:"playerName"`
+}
+
 type Queries struct {
 	FindGameQueryHandler     FindGameQueryHandler
 	FindAllGamesQueryHandler FindAllGamesQueryHandler

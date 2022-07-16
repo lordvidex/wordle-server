@@ -4,7 +4,12 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v4"
 	"github.com/lordvidex/wordle-wf/internal/adapters"
@@ -15,8 +20,6 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/websockets"
 	"github.com/lordvidex/wordle-wf/internal/words"
 	"github.com/spf13/viper"
-	"log"
-	"net/http"
 )
 
 func connectDB(c *DBConfig) (*pgx.Conn, error) {
@@ -99,6 +102,22 @@ func registerApi(router *mux.Router, cases game.UseCases) {
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(middleware.HandleError, middleware.JSONContent, middleware.Logger)
 
+	apiRouter.HandleFunc("/start-game", func(w http.ResponseWriter, r *http.Request) {
+		request := game.StartGameRequestDto{}
+		jsonError := json.NewDecoder(r.Body).Decode(&request)
+		if jsonError != nil {
+			fmt.Printf("%+v\n", jsonError)
+		}
+		cases.Commands.StartGameCommandHandler.Handle(game.StartGameCommand{
+			Players: []game.Player{{ID: uuid.New(), Name: request.PlayerName}}, 
+			Settings: game.NewSettings(1)})
+	})
+
+	apiRouter.HandleFunc("/games/{id: [0-9]+}", func(w http.ResponseWriter, r *http.Request) {
+		gameId := mux.Vars(r)["id"]
+		cases.Queries.FindGameQueryHandler.Handle(game.FindGameQuery{ID: uuid.Must(uuid.Parse(gameId))})
+	})
+
 	// words endpoint
 	//wordsRouter := apiRouter.PathPrefix("/words").Subrouter()
 
@@ -141,3 +160,5 @@ func loadConfig() (*Config, error) {
 	err = viper.Unmarshal(conf.DB)
 	return conf, err
 }
+
+//
