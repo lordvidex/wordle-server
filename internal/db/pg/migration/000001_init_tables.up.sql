@@ -11,7 +11,7 @@ CREATE TABLE word (
 
 CREATE TABLE IF NOT EXISTS game (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    invite_id VARCHAR(16),
+    invite_id VARCHAR(16) NOT NULL,
     word_id UUID REFERENCES word(id),
     start_time TIMESTAMPTZ,
     end_time TIMESTAMPTZ

@@ -14,7 +14,7 @@ import (
 
 type Game struct {
 	ID        uuid.UUID
-	InviteID  sql.NullString
+	InviteID  string
 	WordID    uuid.NullUUID
 	StartTime sql.NullTime
 	EndTime   sql.NullTime

@@ -20,7 +20,7 @@ type LoginHandler interface {
 
 type loginHandler struct {
 	repo            Repository
-	tokenGenerator  TokenHelper[User]
+	tokenGenerator  TokenHelper
 	passwordChecker PasswordChecker
 }
 
@@ -32,12 +32,12 @@ func (h *loginHandler) Handle(command LoginCommand) (token Token, err error) {
 	if !h.passwordChecker.Check(command.Password, user.Password) {
 		return "", ErrInvalidPassword
 	}
-	return h.tokenGenerator.Generate(*user), nil
+	return h.tokenGenerator.Generate(user), nil
 }
 
 func NewLoginHandler(
 	repo Repository,
-	tokenGenerator TokenHelper[User],
+	tokenGenerator TokenHelper,
 	passChecker PasswordChecker,
 ) LoginHandler {
 	return &loginHandler{repo, tokenGenerator, passChecker}

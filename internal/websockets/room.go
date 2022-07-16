@@ -51,7 +51,7 @@ func (r *Room) Run() {
 				Event: game.EventPlayerLeft,
 			}
 
-		// broadcast message to all clients
+		// broadcast message to all clients 
 		case msg := <-r.broadcast:
 			for player := range r.players {
 				select {

@@ -26,7 +26,7 @@ var (
 
 type GameSocket struct {
 	rooms map[string]*Room
-	Fgh   game.FindGameQueryHandler
+	Fgh   game.FindGameByIDQueryHandler
 }
 
 func (g *GameSocket) Close() error {
@@ -38,16 +38,6 @@ func (g *GameSocket) Close() error {
 	return err
 }
 
-func sessionSlice(sessionMap map[game.Player]*game.Session) []*game.Session {
-	s := make([]*game.Session, len(sessionMap))
-	i := 0
-	for _, sess := range sessionMap {
-		s[i] = sess
-		i++
-	}
-	return s
-}
-
 func (g *GameSocket) UpdateGameState(ev game.Event, gm *game.Game) error {
 	// check if room exists
 	if room, ok := g.rooms[gm.ID.String()]; ok {
@@ -55,7 +45,7 @@ func (g *GameSocket) UpdateGameState(ev game.Event, gm *game.Game) error {
 		msg := WSGameDto{
 			ID:       &gm.ID,
 			Settings: &gm.Settings,
-			Sessions: sessionSlice(gm.PlayerSessions),
+			Sessions: gm.Sessions,
 		}
 		payload := WSPayload{
 			Event: ev,
@@ -104,7 +94,7 @@ func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	room.join <- NewClient(room, conn)
 }
 
-func NewGameSocket(fgh game.FindGameQueryHandler) *GameSocket {
+func NewGameSocket(fgh game.FindGameByIDQueryHandler) *GameSocket {
 	sock := &GameSocket{make(map[string]*Room), fgh}
 	return sock
 }

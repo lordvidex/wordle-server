@@ -35,8 +35,8 @@ type Game struct {
 	// Word is the correct word that should be guessed
 	Word words.Word
 
-	// PlayerSessions represent each player's game session
-	PlayerSessions map[Player]*Session
+	// Sessions represent each player's game session
+	Sessions []*Session
 
 	// Settings represent the rules of the game as set by the room owner
 	Settings Settings
@@ -103,7 +103,7 @@ func NewSettings(playerCount int) Settings {
 	return Settings{
 		WordLength:            5,
 		Trials:                6,
-		PlayerCount:           playerCount,
+		PlayerCount:           playerCount, 
 		Analytics:             true,
 		RecordTime:            true,
 		ViewOpponentsSessions: true,

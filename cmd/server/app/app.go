@@ -11,7 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/lordvidex/wordle-wf/internal/adapters"
 	"github.com/lordvidex/wordle-wf/internal/auth"
 	"github.com/lordvidex/wordle-wf/internal/db/pg"
@@ -32,14 +32,14 @@ func (routeBuilder *RouteBuilder) MakeRoute(path string, f func(RouteBuilder, *m
 	return routeBuilder
 }
 
-func connectDB(c *DBConfig) (*pgx.Conn, error) {
+func connectDB(c *DBConfig) (*pgxpool.Pool, error) {
 	var dsn string
 	if c.Url != "" {
 		dsn = c.Url
 	} else {
 		dsn = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", c.User, c.Password, c.Host, 5432, c.DBName)
 	}
-	pgConn, err := pgx.Connect(context.Background(), dsn)
+	pgConn, err := pgxpool.Connect(context.Background(), dsn)
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to database: %v\n", err)
 	}
@@ -61,12 +61,11 @@ func Start() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func() {
-		_ = pgConn.Close(context.Background())
-	}()
+	defer pgConn.Close()
 
 	// repositories
 	gameRepo := pg.NewGameRepository(pgConn)
+	//authRepo := pg.NewUserRepository(pgConn)
 
 	// services and dependencies
 	var gameSocket *websockets.GameSocket
@@ -81,9 +80,11 @@ func Start() {
 		adapters.NewLocalStringGenerator(),
 		nil,
 	)
+	//authUsecase := auth.NewUseCases(authRepo, nil, nil)
 	gameUsecase := game.NewUseCases(
 		gameRepo,
 		wordsUsecase.Queries.GetRandomWordHandler,
+		adapters.NewUniUriGenerator(),
 		gameSocket)
 
 	// adapters and external services
@@ -109,46 +110,21 @@ func registerWS(router *mux.Router, ws http.Handler) {
 // registerApi registers the API endpoints.
 func registerApi(router *mux.Router, cases game.UseCases) {
 	// main api endpoint
-	apiRouter := router.PathPrefix("/api").Subrouter()
+	apiRouter := router.PathPrefix("/api").Subrouter() 
 	apiRouter.Use(middleware.HandleError, middleware.JSONContent, middleware.Logger)
 
 	gameRouteBuilder := &RouteBuilder{router: apiRouter}
 	gameRouteBuilder.MakeRoute("/game", func(routeBuilder RouteBuilder, router *mux.Router) {
-		router.HandleFunc("/create", func(w http.ResponseWriter, r *http.Request) {
+		router.HandleFunc("/create-lobby", func(w http.ResponseWriter, r *http.Request) {
 			request := game.CreateGameRequestDto{}
 			jsonError := json.NewDecoder(r.Body).Decode(&request)
 			if jsonError != nil {
 				fmt.Printf("%+v\n", jsonError)
 			}
-			// TODO: Store the settings
-		})
-
-		router.HandleFunc("/join", func(w http.ResponseWriter, r *http.Request) {
-			request := game.JoinOrLeaveGameRequestDto{}
-			jsonError := json.NewDecoder(r.Body).Decode(&request)
-			if jsonError != nil {
-				fmt.Printf("%+v\n", jsonError)
-			}
-			// TODO: Store the settings
-		})
-
-		router.HandleFunc("/start", func(w http.ResponseWriter, r *http.Request) {
-			request := game.StartGameRequestDto{}
-			jsonError := json.NewDecoder(r.Body).Decode(&request)
-			if jsonError != nil {
-				fmt.Printf("%+v\n", jsonError)
-			}
-			// TODO: Generate words to be guessed
-			// TODO: Initialize player sessions
-		})
-
-		router.HandleFunc("/leave", func(w http.ResponseWriter, r *http.Request) {
-			request := game.JoinOrLeaveGameRequestDto{}
-			jsonError := json.NewDecoder(r.Body).Decode(&request)
-			if jsonError != nil {
-				fmt.Printf("%+v\n", jsonError)
-			}
-			// TODO: Mark session as destroyed with a reason
+			cases.Commands.CreateGameHandler.Handle(&game.CreateGameCommand{Settings: request.Settings})
+			// create websocket room
+			// send room info to client
+			// client connects creator to the room
 		})
 
 		router.HandleFunc("/{id: [0-9]+}", func(w http.ResponseWriter, r *http.Request) {
@@ -199,5 +175,3 @@ func loadConfig() (*Config, error) {
 	err = viper.Unmarshal(conf.DB)
 	return conf, err
 }
-
-//
