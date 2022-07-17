@@ -6,19 +6,17 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/lordvidex/wordle-wf/internal/auth"
 	pg "github.com/lordvidex/wordle-wf/internal/db/pg/gen"
 	"github.com/lordvidex/wordle-wf/internal/db/pg/mapper"
 	"github.com/lordvidex/wordle-wf/internal/game"
-	"github.com/lordvidex/wordle-wf/internal/words"
 	"time"
 )
 
 type gameRepository struct {
 	*pg.Queries
 	c     context.Context
-	pgxDB *pgxpool.Pool
+	pgxDB *pgx.Conn
 }
 
 // external errors
@@ -31,7 +29,7 @@ var (
 	ErrFetchingPlayerGuess = errors.New("fetching words for player error")
 )
 
-func NewGameRepository(db *pgxpool.Pool) game.Repository {
+func NewGameRepository(db *pgx.Conn) game.Repository {
 	return &gameRepository{
 		c:       context.Background(),
 		Queries: pg.New(db),
@@ -210,9 +208,6 @@ func (g *gameRepository) FindByInviteID(inviteId string, eager ...interface{}) (
 		}
 		// worker to get players in each game
 		fetchPlayerWords := false
-		if isEager([2]interface{}{words.Word{}, &words.Word{}}, eager) {
-			fetchPlayerWords = true
-		}
 		go g.playersInGameWorker(&gm, pipe, fetchPlayerWords, sessionPipe)
 	}
 	// assemble

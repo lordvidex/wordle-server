@@ -3,10 +3,11 @@ package websockets
 import (
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/lordvidex/wordle-wf/internal/game"
-	"net/http"
 )
 
 var (

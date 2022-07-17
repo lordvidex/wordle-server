@@ -11,7 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v4"
 	"github.com/lordvidex/wordle-wf/internal/adapters"
 	"github.com/lordvidex/wordle-wf/internal/auth"
 	"github.com/lordvidex/wordle-wf/internal/db/pg"
@@ -22,26 +22,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-type RouteBuilder struct {
-	router *mux.Router
-}
-
-func (routeBuilder *RouteBuilder) MakeRoute(path string, f func(RouteBuilder, *mux.Router)) *RouteBuilder {
-	apiRouter := routeBuilder.router.PathPrefix(path).Subrouter()
-	f(RouteBuilder{router: apiRouter}, apiRouter)
-	return routeBuilder
-}
-
-func connectDB(c *DBConfig) (*pgxpool.Pool, error) {
+func connectDB(c *DBConfig) (*pgx.Conn, error) {
 	var dsn string
 	if c.Url != "" {
 		dsn = c.Url
 	} else {
 		dsn = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", c.User, c.Password, c.Host, 5432, c.DBName)
 	}
-	pgConn, err := pgxpool.Connect(context.Background(), dsn)
+	pgConn, err := pgx.Connect(context.Background(), dsn)
 	if err != nil {
-		return nil, fmt.Errorf("unable to connect to database: %v\n", err)
+		return nil, fmt.Errorf("unable to connect to database: %v", err)
 	}
 	err = pgConn.Ping(context.Background())
 	if err != nil {
@@ -61,7 +51,9 @@ func Start() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer pgConn.Close()
+	defer func() {
+		_ = pgConn.Close(context.Background())
+	}()
 
 	// repositories
 	gameRepo := pg.NewGameRepository(pgConn)
@@ -76,14 +68,11 @@ func Start() {
 	}()
 
 	// usecases and application layer components
-	wordsUsecase := words.NewUseCases(
-		adapters.NewLocalStringGenerator(),
-		nil,
-	)
+	wordsUsecase := words.NewUseCases(adapters.NewLocalStringGenerator())
 	//authUsecase := auth.NewUseCases(authRepo, nil, nil)
 	gameUsecase := game.NewUseCases(
 		gameRepo,
-		wordsUsecase.Queries.GetRandomWordHandler,
+		wordsUsecase.RandomWordHandler,
 		adapters.NewUniUriGenerator(),
 		gameSocket)
 
@@ -159,7 +148,7 @@ func printEndpoints(r *mux.Router) {
 	}
 }
 
-// loadConfig loads the config from the environment variables or vault
+// loadConfig reads the environment variables into *Config
 func loadConfig() (*Config, error) {
 	conf := &Config{
 		DB: NewDBConfig(),

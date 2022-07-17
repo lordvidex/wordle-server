@@ -1,7 +1,6 @@
 package game
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/google/uuid"
@@ -29,7 +28,7 @@ type Game struct {
 	// ID is the app specific identifier for a game in the app
 	ID uuid.UUID
 
-	// InviteID makes sharing of the app easy among friends
+	// InviteID is the id of the lobby used to play this game
 	InviteID string
 
 	// Word is the correct word that should be guessed
@@ -74,18 +73,6 @@ func NewSession(player *Player) *Session {
 	return &Session{
 		Player: player,
 	}
-}
-
-func (s *Session) Complete(maxTries int, correct words.Word) bool {
-	if len(s.Guesses) == 0 {
-		return false
-	}
-	lastGuess := s.Guesses[len(s.Guesses)-1]
-	isEqual := reflect.DeepEqual(lastGuess.Letters.Keys(), correct.Letters.Keys())
-	if len(s.Guesses) >= maxTries || isEqual {
-		return true
-	}
-	return false
 }
 
 type Settings struct {
