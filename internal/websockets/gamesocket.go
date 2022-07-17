@@ -55,10 +55,10 @@ func (g *GameSocket) Close() error {
 	return err
 }
 
-// ServeHTTP handles websocket requests for GameSocket
+// ServeHTTP handles websocket requests for GameSocket - JoinGameEvent
 // and connects the user to a game session if correct id is produced
 func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	idList, ok := r.URL.Query()["id"]
+	idList, ok := r.URL.Query()[queryGameID]
 	if !ok || len(idList) < 1 {
 		fmt.Println("error getting game id")
 		return
@@ -79,14 +79,14 @@ func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	room, ok := g.rooms[id]
 	if !ok {
-		// check if such a game exists
-		game, err := g.Fgh.Handle(game.FindGameQuery{ID: _uuid})
+		// check if such a gm exists
+		gm, err := g.Fgh.Handle(game.FindGameQuery{ID: _uuid})
 		if err != nil {
 			fmt.Println("error finding game", err)
 			return
 		}
 		// create new room
-		g.rooms[id] = NewRoom(id, game.Settings)
+		g.rooms[id] = NewRoom(id, gm.Settings)
 	}
 	room.join <- NewClient(room, conn)
 }
