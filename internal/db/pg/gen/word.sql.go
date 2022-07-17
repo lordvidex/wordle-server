@@ -7,62 +7,94 @@ package pg
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgtype"
 )
 
-const createWord = `-- name: CreateWord :one
-INSERT INTO word(
-    id,
-    time_played, 
-    letters
-) VALUES ($1, $2, $3) RETURNING id, time_played, letters
-`
-
-type CreateWordParams struct {
-	ID         uuid.UUID
-	TimePlayed time.Time
-	Letters    pgtype.JSON
+type InsertWordsParams struct {
+	PlayerGamesID uuid.NullUUID
+	Word          string
+	PlayedAt      time.Time
 }
 
-func (q *Queries) CreateWord(ctx context.Context, arg CreateWordParams) (*Word, error) {
-	row := q.db.QueryRow(ctx, createWord, arg.ID, arg.TimePlayed, arg.Letters)
-	var i Word
-	err := row.Scan(&i.ID, &i.TimePlayed, &i.Letters)
-	return &i, err
-}
-
-const getWord = `-- name: GetWord :one
-SELECT id, time_played, letters from word WHERE id=$1
+const playerWordsInGame = `-- name: PlayerWordsInGame :many
+SELECT pgw.id, pgw.player_games_id, pgw.word, pgw.played_at from player_game_words pgw
+INNER JOIN player_games pg ON pgw.player_games_id = pg.id
+WHERE pg.player_id=$1 AND pg.game_id=$2
 `
 
-func (q *Queries) GetWord(ctx context.Context, id uuid.UUID) (*Word, error) {
-	row := q.db.QueryRow(ctx, getWord, id)
-	var i Word
-	err := row.Scan(&i.ID, &i.TimePlayed, &i.Letters)
-	return &i, err
+type PlayerWordsInGameParams struct {
+	PlayerID uuid.NullUUID
+	GameID   uuid.NullUUID
 }
 
-const wordsPlayedBy = `-- name: WordsPlayedBy :many
-SELECT w.id, w.time_played, w.letters from game_player_word gpw
-         INNER JOIN game_player gp on gpw.player_id = gp.id
-         INNER JOIN word w on gpw.word_id = w.id
-WHERE gp.id = $1
-ORDER BY w.time_played
-`
-
-func (q *Queries) WordsPlayedBy(ctx context.Context, id uuid.UUID) ([]*Word, error) {
-	rows, err := q.db.Query(ctx, wordsPlayedBy, id)
+func (q *Queries) PlayerWordsInGame(ctx context.Context, arg PlayerWordsInGameParams) ([]*PlayerGameWord, error) {
+	rows, err := q.db.Query(ctx, playerWordsInGame, arg.PlayerID, arg.GameID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []*Word{}
+	var items []*PlayerGameWord
 	for rows.Next() {
-		var i Word
-		if err := rows.Scan(&i.ID, &i.TimePlayed, &i.Letters); err != nil {
+		var i PlayerGameWord
+		if err := rows.Scan(
+			&i.ID,
+			&i.PlayerGamesID,
+			&i.Word,
+			&i.PlayedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const wordsPlayedBy = `-- name: WordsPlayedBy :many
+SELECT pgw.id, player_games_id, word, played_at, pg.id, player_id, game_id, user_game_name, points, position FROM player_game_words pgw 
+INNER JOIN player_games pg ON pgw.player_games_id = pg.id 
+WHERE pg.player_id = $1
+`
+
+type WordsPlayedByRow struct {
+	ID            int64
+	PlayerGamesID uuid.NullUUID
+	Word          string
+	PlayedAt      time.Time
+	ID_2          uuid.UUID
+	PlayerID      uuid.NullUUID
+	GameID        uuid.NullUUID
+	UserGameName  string
+	Points        sql.NullInt32
+	Position      sql.NullInt32
+}
+
+func (q *Queries) WordsPlayedBy(ctx context.Context, playerID uuid.NullUUID) ([]*WordsPlayedByRow, error) {
+	rows, err := q.db.Query(ctx, wordsPlayedBy, playerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*WordsPlayedByRow
+	for rows.Next() {
+		var i WordsPlayedByRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.PlayerGamesID,
+			&i.Word,
+			&i.PlayedAt,
+			&i.ID_2,
+			&i.PlayerID,
+			&i.GameID,
+			&i.UserGameName,
+			&i.Points,
+			&i.Position,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)

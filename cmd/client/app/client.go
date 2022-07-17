@@ -79,7 +79,7 @@ func Start() {
 			lastWord := session.playedWords[len(session.playedWords)-1]
 			status := lastWord.CompareTo(session.correctWord)
 			for i, score := range status {
-				fmt.Print(colorForStatus(score).bold(), string(lastWord[i]), colorReset, reset)
+				fmt.Print(colorForStatus(score).bold(), string(lastWord.Word[i]), colorReset, reset)
 			}
 			fmt.Print("\n")
 		}

@@ -32,7 +32,7 @@ func (h *loginHandler) Handle(command LoginCommand) (token Token, err error) {
 	if !h.passwordChecker.Check(command.Password, user.Password) {
 		return "", ErrInvalidPassword
 	}
-	return h.tokenGenerator.Generate(user), nil
+	return h.tokenGenerator.Generate(user)
 }
 
 func NewLoginHandler(

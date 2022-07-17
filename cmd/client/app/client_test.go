@@ -14,9 +14,9 @@ func TestSession_IsWon(t *testing.T) {
 		{"no sessions", &Session{}, false},
 		{"no words", &Session{playedWords: []words.Word{}}, false},
 		{"last word is correct", &Session{playedWords: []words.Word{
-			words.Word("a"),
+			words.New("a"),
 		},
-			correctWord: "a",
+			correctWord: words.New("a"),
 		}, true},
 	}
 	for _, tt := range tests {
@@ -37,7 +37,7 @@ func TestNewSessionGeneratesWord(t *testing.T) {
 	// given
 	tries := 5
 	s := NewSession(tries, mock{})
-	if s.correctWord == "" {
+	if s.correctWord.String() == "" {
 		t.Error("NewSession() did not generate a word")
 	}
 	if s.maxTries != tries {
@@ -66,7 +66,7 @@ func TestSession_HasEnded(t *testing.T) {
 				words.New("SECOND"),
 				words.New("THIRD"),
 				words.New("FOURTH"),
-			}, correctWord: "CORRECT"}, true},
+			}, correctWord: words.New("CORRECT")}, true},
 		{"correct word", fields{maxTries: 4, playedWords: []words.Word{
 			words.New("FIRST"),
 			words.New("CORRECT"),

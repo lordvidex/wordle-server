@@ -1,16 +1,13 @@
--- name: GetWord :one
-SELECT * from word WHERE id=$1;
+-- name: InsertWords :copyfrom 
+INSERT INTO player_game_words(player_games_id, word, played_at)
+VALUES ($1, $2, $3);
 
--- name: CreateWord :one
-INSERT INTO word(
-    id,
-    time_played, 
-    letters
-) VALUES ($1, $2, $3) RETURNING *;
+-- name: PlayerWordsInGame :many
+SELECT pgw.* from player_game_words pgw
+INNER JOIN player_games pg ON pgw.player_games_id = pg.id
+WHERE pg.player_id=$1 AND pg.game_id=$2;
 
 -- name: WordsPlayedBy :many
-SELECT w.* from game_player_word gpw
-         INNER JOIN game_player gp on gpw.player_id = gp.id
-         INNER JOIN word w on gpw.word_id = w.id
-WHERE gp.id = $1
-ORDER BY w.time_played;
+SELECT * FROM player_game_words pgw 
+INNER JOIN player_games pg ON pgw.player_games_id = pg.id 
+WHERE pg.player_id = $1;
