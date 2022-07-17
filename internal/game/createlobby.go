@@ -17,16 +17,17 @@ type CreateLobbyHandler interface {
 
 type createLobbyHandler struct {
 	inviteIdGenerator InviteIDGenerator
+	lobbyCreator      LobbyCreator
 }
 
-func NewCreateLobbyHandler(inviteIdGenerator InviteIDGenerator) CreateLobbyHandler {
-	return &createLobbyHandler{inviteIdGenerator}
+func NewCreateLobbyHandler(i InviteIDGenerator, l LobbyCreator) CreateLobbyHandler {
+	return &createLobbyHandler{i, l}
 }
 
 func (h *createLobbyHandler) Handle(lobby CreateLobbyRequestDto) (string, error) {
 	// validate player count
 	if lobby.PlayerCount.Valid && lobby.PlayerCount.Int64 > 10 {
-		return "", fmt.Errorf("Players in a lobby cannot be more than 10")
+		return "", fmt.Errorf("players in a lobby cannot be more than 10")
 	}
 
 	// initialize default values
@@ -48,6 +49,5 @@ func (h *createLobbyHandler) Handle(lobby CreateLobbyRequestDto) (string, error)
 		RecordTime:            lobby.RecordTime,
 		ViewOpponentsSessions: lobby.ViewOpponentsSessions,
 	}
-
-	return room.ID, nil
+	return h.lobbyCreator.CreateLobby(settings, h.inviteIdGenerator.Generate())
 }

@@ -11,7 +11,6 @@ type Queries struct {
 type Commands struct {
 	CreateGameHandler CreateGameHandler
 	SubmitResultHandler SubmitResultHandler
-	StartGameHandler   StartGameHandler
 	CreateLobbyHandler CreateLobbyHandler
 }
 
@@ -20,16 +19,15 @@ type UseCases struct {
 	Commands Commands
 }
 
-func NewUseCases(repo Repository, g words.RandomHandler,i InviteIDGenerator, n NotificationService, a AwardSystem) UseCases {
+func NewUseCases(repo Repository, g words.RandomHandler,i InviteIDGenerator, a AwardSystem, l LobbyCreator) UseCases {
 	return UseCases{
 		Queries: Queries{
 			FindGameQueryHandler: NewFindGameByIDQueryHandler(repo),
 		},
 		Commands: Commands{
 			SubmitResultHandler: NewSubmitResultHandler(repo, a),
-			CreateGameHandler: NewCreateGameHandler(repo),
-			StartGameHandler:  NewStartGameCommandHandler(repo, g, n),
-			CreateLobbyHandler: NewCreateLobbyHandler(i),
+			CreateGameHandler: NewCreateGameHandler(repo, g),
+			CreateLobbyHandler: NewCreateLobbyHandler(i, l),
 		},
 	}
 }

@@ -13,6 +13,6 @@ type WSGameDto struct {
 }
 
 type WSPayload struct {
-	Event game.Event  `json:"event"`
+	Event Event  `json:"event"`
 	Data  interface{} `json:"data"`
 }

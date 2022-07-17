@@ -88,8 +88,8 @@ func Start() {
 		gameRepo,
 		wordsUsecase.RandomWordHandler,
 		adapters.NewUniUriGenerator(),
-		gameSocket,
 		adapters.NewAwardSystem(),
+		gameSocket,
 	)
 
 	// adapters and external services
