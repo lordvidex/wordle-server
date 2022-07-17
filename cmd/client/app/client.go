@@ -7,6 +7,11 @@ import (
 	"log"
 )
 
+type decorator string 
+const (
+	bold decorator = "\u001b[1m"
+	reset decorator = "\u001b[0m"
+)
 type color string
 
 const (
@@ -15,6 +20,11 @@ const (
 	colorGrey   color = "\033[37m"
 	colorYellow color = "\033[33m"
 )
+
+// bold makes the color bolder
+func (c color) bold() string {
+	return string(bold) + string(c)
+}
 
 func colorForStatus(status words.LetterStatus) color {
 	switch status {
@@ -62,14 +72,14 @@ func Start() {
 		session.playedWords = append(session.playedWords, words.New(word))
 		if session.IsWon() {
 			fmt.Println("You won !")
-			fmt.Println(colorForStatus(words.Correct), session.correctWord, colorReset)
+			fmt.Println(colorForStatus(words.Correct).bold(), session.correctWord, colorReset, reset)
 			break
 		} else {
 			fmt.Println("almost there !")
 			lastWord := session.playedWords[len(session.playedWords)-1]
 			status := lastWord.CompareTo(session.correctWord)
 			for i, score := range status {
-				fmt.Print(colorForStatus(score), string(lastWord[i]), colorReset)
+				fmt.Print(colorForStatus(score).bold(), string(lastWord[i]), colorReset, reset)
 			}
 			fmt.Print("\n")
 		}
@@ -77,7 +87,7 @@ func Start() {
 	if session.IsWon() {
 		fmt.Println("Nice job breaking our code and guessing the word !")
 	} else {
-		fmt.Println("You tried your best !, the word is ", colorGreen, session.correctWord, colorReset)
+		fmt.Println("You tried your best !, the word is ", bold, colorGreen, session.correctWord, colorReset, reset)
 	}
 	fmt.Println("Would you like to play again? y(Y)/n(N)")
 	var input string

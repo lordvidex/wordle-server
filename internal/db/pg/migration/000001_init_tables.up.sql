@@ -29,10 +29,17 @@ CREATE TABLE IF NOT EXISTS wordlewf_user (
 );
 
 CREATE TABLE IF NOT EXISTS wordlewf_user_games (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES wordlewf_user(id) ON DELETE CASCADE,
     game_id UUID REFERENCES game(id) ON DELETE CASCADE,
     user_game_name VARCHAR(255) NOT NULL,
     points INTEGER DEFAULT 0,
     position INTEGER DEFAULT -1,
-    CONSTRAINT wordlewf_user_games_pk PRIMARY KEY (user_id, game_id)
+    CONSTRAINT wordlewf_user_games_pk UNIQUE(user_id, game_id)
+);
+
+CREATE TABLE IF NOT EXISTS wordlewf_user_game_words (
+    user_game_id UUID REFERENCES wordlewf_user_games(id) ON DELETE CASCADE,
+    word VARCHAR(255) NOT NULL,
+    CONSTRAINT wordlewf_user_game_words_pk PRIMARY KEY (user_game_id, word)
 );
