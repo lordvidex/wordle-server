@@ -262,16 +262,16 @@ func (g *gameRepository) playersInGameWorker(gm *game.Game,
 // wordsByPlayerWorker fetches words for a player and sends the result to the channel
 // WARNING: this function discards errors when getting player words
 func (g *gameRepository) wordsByPlayerWorker(sess *game.Session, pipe chan<- *game.Session) {
-	w, err := g.WordsPlayedBy(g.c, sess.Player.ID)
-	if err != nil {
-		goto end
-	}
-	sess.Guesses, err = mapper.WordsPlayedBy(w)
-	if err != nil {
-		goto end
-	}
-end:
-	pipe <- sess
+	// w, err := g.WordsPlayedBy(g.c, sess.Player.ID)
+	// if err != nil {
+	// 	goto end
+	// }
+	// sess.Guesses, err = mapper.WordsPlayedBy(w)
+// 	if err != nil {
+// 		goto end
+// 	}
+// end:
+// 	pipe <- sess
 }
 
 // helper funcs
