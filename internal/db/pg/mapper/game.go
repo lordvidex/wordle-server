@@ -8,30 +8,6 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/words"
 )
 
-// GetPlayersInGame helps to map row types from PlayerInGame to Player
-// func GetPlayersInGame(players []*pg.) []*game.Player {
-// 	playerSessions := make([]*game.Player, len(players))
-// 	for i, gp := range players {
-// 		var player game.Player
-// 		player.ID = gp.ID
-// 		player.Name = gp.Name
-// 		player.User = &game.Player{
-// 			ID: gp.UserID,
-// 		}
-// 		if gp.UserName.Valid {
-// 			player.User.Name = gp.UserName.String
-// 		}
-// 		if gp.Password.Valid {
-// 			player.User.Password = gp.Password.String
-// 		}
-// 		if gp.Email.Valid {
-// 			player.User.Email = gp.Email.String
-// 		}
-// 		playerSessions[i] = &player
-// 	}
-// 	return playerSessions
-// }
-
 // FindByIdRow helps to map row types from pg.FindByIdRow to game.Game
 func FindByIdRow(row *pg.FindByIdRow) *game.Game {
 	gm := &game.Game{}

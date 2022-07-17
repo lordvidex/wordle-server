@@ -55,6 +55,14 @@ func Start() {
 	gameRepo := pg.NewGameRepository(pgConn)
 	//authRepo := pg.NewUserRepository(pgConn)
 
+	// services and dependencies
+	var gameSocket *websockets.GameSocket
+	defer func() {
+		if err := gameSocket.Close(); err != nil {
+			log.Println("error closing websocket", err)
+		}
+	}()
+
 	// usecases and application layer components
 	wordsUsecase := words.NewUseCases(adapters.NewLocalStringGenerator())
 	//authUsecase := auth.NewUseCases(authRepo, nil, nil)
@@ -65,13 +73,7 @@ func Start() {
 	)
 
 	// adapters and external services
-	gameSocket := websockets.NewGameSocket(gameUsecase.Queries.FindGameQueryHandler)
-	defer func() {
-		if err := gameSocket.Close(); err != nil {
-			log.Println("error closing websocket", err)
-		}
-	}()
-
+	gameSocket = websockets.NewGameSocket(gameUsecase.Queries.FindGameQueryHandler)
 	router := mux.NewRouter()
 
 	registerApi(router, gameUsecase)

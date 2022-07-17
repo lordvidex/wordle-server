@@ -137,7 +137,9 @@ func (g *gameRepository) UpdateGameResult(
 	if err != nil {
 		return err
 	}
-	lastPosition, err := g.Queries.WithTx(tx).GetPlayersResultCountInGame(g.c, uuid.NullUUID{UUID: gameID})
+	lastPosition, err := g.Queries.
+		WithTx(tx).
+		GetPlayersResultCountInGame(g.c, uuid.NullUUID{UUID: gameID})
 	if err != nil {
 		return err
 	}
