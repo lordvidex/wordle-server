@@ -16,16 +16,11 @@ type registerHandler struct {
 }
 
 func (h *registerHandler) Handle(command RegisterCommand) (token Token, err error) {
-	user := &User{
-		Email:    command.Email,
-		Name:     command.Name,
-		Password: command.Password,
-	}
-	user, err = h.repo.Create(user)
+	player, err := h.repo.Create(command.Name, command.Email, command.Password)
 	if err != nil {
 		return "", err
 	}
-	return h.tokenGenerator.Generate(user), nil
+	return h.tokenGenerator.Generate(player)
 }
 
 func NewRegisterHandler(repo Repository, tokenGenerator TokenHelper) RegisterHandler {

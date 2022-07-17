@@ -9,6 +9,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	uuid "github.com/google/uuid"
+	game "github.com/lordvidex/wordle-wf/internal/game"
 )
 
 // MockRepository is a mock of Repository interface.
@@ -35,25 +36,25 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockRepository) Create(arg0 *User) (*User, error) {
+func (m *MockRepository) Create(name, email, password string) (*game.Player, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0)
-	ret0, _ := ret[0].(*User)
+	ret := m.ctrl.Call(m, "Create", name, email, password)
+	ret0, _ := ret[0].(*game.Player)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockRepositoryMockRecorder) Create(arg0 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Create(name, email, password interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), name, email, password)
 }
 
 // FindByEmail mocks base method.
-func (m *MockRepository) FindByEmail(email string) (*User, error) {
+func (m *MockRepository) FindByEmail(email string) (*game.Player, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByEmail", email)
-	ret0, _ := ret[0].(*User)
+	ret0, _ := ret[0].(*game.Player)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -65,10 +66,10 @@ func (mr *MockRepositoryMockRecorder) FindByEmail(email interface{}) *gomock.Cal
 }
 
 // FindByID mocks base method.
-func (m *MockRepository) FindByID(id uuid.UUID) (*User, error) {
+func (m *MockRepository) FindByID(id uuid.UUID) (*game.Player, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByID", id)
-	ret0, _ := ret[0].(*User)
+	ret0, _ := ret[0].(*game.Player)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -155,11 +156,12 @@ func (mr *MockTokenHelperMockRecorder) Decode(token interface{}) *gomock.Call {
 }
 
 // Generate mocks base method.
-func (m *MockTokenHelper) Generate(payload interface{}) Token {
+func (m *MockTokenHelper) Generate(payload interface{}) (Token, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Generate", payload)
 	ret0, _ := ret[0].(Token)
-	return ret0
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Generate indicates an expected call of Generate.

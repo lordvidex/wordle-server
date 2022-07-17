@@ -9,28 +9,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgtype"
 )
 
 type Game struct {
-	ID        uuid.UUID
-	InviteID  string
-	WordID    uuid.NullUUID
-	StartTime sql.NullTime
-	EndTime   sql.NullTime
-}
-
-type GamePlayer struct {
-	ID      uuid.UUID
-	UserID  uuid.UUID
-	GameID  uuid.UUID
-	Name    string
-	Deleted sql.NullBool
-}
-
-type GamePlayerWord struct {
-	PlayerID uuid.UUID
-	WordID   uuid.UUID
+	ID          uuid.UUID
+	InviteID    string
+	Word        string
+	PlayerCount int16
+	StartTime   time.Time
+	EndTime     sql.NullTime
 }
 
 type GameSetting struct {
@@ -38,21 +25,33 @@ type GameSetting struct {
 	GameID                   uuid.NullUUID
 	WordLength               sql.NullInt16
 	Trials                   sql.NullInt16
-	PlayerCount              sql.NullInt16
+	MaxPlayerCount           sql.NullInt16
 	HasAnalytics             sql.NullBool
 	ShouldRecordTime         sql.NullBool
 	CanViewOpponentsSessions sql.NullBool
 }
 
-type Word struct {
-	ID         uuid.UUID
-	TimePlayed time.Time
-	Letters    pgtype.JSON
+type Player struct {
+	ID        uuid.UUID
+	Name      string
+	Points    sql.NullInt64
+	Email     string
+	Password  string
+	IsDeleted bool
 }
 
-type WordlewfUser struct {
-	ID       uuid.UUID
-	Name     string
-	Email    string
-	Password string
+type PlayerGame struct {
+	ID           uuid.UUID
+	PlayerID     uuid.NullUUID
+	GameID       uuid.NullUUID
+	UserGameName string
+	Points       sql.NullInt32
+	Position     sql.NullInt32
+}
+
+type PlayerGameWord struct {
+	ID            int64
+	PlayerGamesID uuid.NullUUID
+	Word          string
+	PlayedAt      time.Time
 }

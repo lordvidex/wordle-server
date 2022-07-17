@@ -43,14 +43,14 @@ func (r *Room) Run() {
 		case client := <-r.join:
 			r.players[client] = true
 			r.broadcast <- &WSPayload{
-				Event: game.EventPlayerJoined,
+				// Event: game.EventPlayerJoined, 
 			}
 
 		// a client left the room
 		case client := <-r.leave:
 			delete(r.players, client)
 			r.broadcast <- &WSPayload{
-				Event: game.EventPlayerLeft,
+				// Event: game.EventPlayerLeft,
 			}
 
 		// broadcast message to all clients

@@ -1,4 +1,5 @@
-DROP TABLE IF EXISTS wordlewf_user_games;
-DROP TABLE IF EXISTS wordlewf_user;
+DROP TABLE IF EXISTS player_game_words;
+DROP TABLE IF EXISTS player_games;
+DROP TABLE IF EXISTS player;
 DROP TABLE IF EXISTS game_settings;
 DROP TABLE IF EXISTS game;

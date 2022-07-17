@@ -1,10 +1,11 @@
 package pg
 
 import (
-	"github.com/google/uuid"
-	"github.com/lordvidex/wordle-wf/internal/auth"
 	"reflect"
 	"testing"
+
+	"github.com/google/uuid"
+	"github.com/lordvidex/wordle-wf/internal/game"
 )
 
 func Test_userRepository_FindByID(t *testing.T) {
@@ -14,7 +15,7 @@ func Test_userRepository_FindByID(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *auth.User
+		want    *game.Player
 		wantErr bool
 	}{
 		{"some random id", args{uuid.New()}, nil, true},

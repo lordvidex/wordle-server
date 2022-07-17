@@ -13,7 +13,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v4"
 	"github.com/lordvidex/wordle-wf/internal/adapters"
-	"github.com/lordvidex/wordle-wf/internal/auth"
 	"github.com/lordvidex/wordle-wf/internal/db/pg"
 	"github.com/lordvidex/wordle-wf/internal/game"
 	"github.com/lordvidex/wordle-wf/internal/middleware"
@@ -89,7 +88,9 @@ func Start() {
 		gameRepo,
 		wordsUsecase.RandomWordHandler,
 		adapters.NewUniUriGenerator(),
-		gameSocket)
+		adapters.NewAwardSystem(),
+		gameSocket,
+	)
 
 	// adapters and external services
 	gameSocket = websockets.NewGameSocket(gameUsecase.Queries.FindGameQueryHandler)
@@ -148,8 +149,8 @@ func registerApi(router *mux.Router, cases game.UseCases) {
 	//wordsRouter := apiRouter.PathPrefix("/words").Subrouter()
 
 	// auth endpoints
-	authRouter := apiRouter.PathPrefix("/auth").Subrouter()
-	auth.RegisterHTTPHandler(authRouter)
+	_ = apiRouter.PathPrefix("/auth").Subrouter()
+	
 }
 
 // printEndpoints prints the endpoints that are exposed for api consumption

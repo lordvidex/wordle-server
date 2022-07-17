@@ -10,6 +10,7 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/game"
 )
 
+// upgrader
 var (
 	upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -18,16 +19,31 @@ var (
 			return true
 		},
 	}
-	queryGameID = "id"
 )
 
+// errors
 var (
 	ErrRoomNotFound = errors.New("game room not found")
+)
+
+// others
+var (
+	queryGameID = "id"
 )
 
 type GameSocket struct {
 	rooms map[string]*Room
 	Fgh   game.FindGameByIDQueryHandler
+}
+
+func (g *GameSocket) CreateLobby(settings *game.Settings, id string) (string, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewGameSocket(fgh game.FindGameByIDQueryHandler) *GameSocket {
+	sock := &GameSocket{make(map[string]*Room), fgh}
+	return sock
 }
 
 func (g *GameSocket) Close() error {
@@ -37,26 +53,6 @@ func (g *GameSocket) Close() error {
 		delete(g.rooms, id)
 	}
 	return err
-}
-
-func (g *GameSocket) UpdateGameState(ev game.Event, gm *game.Game) error {
-	// check if room exists
-	if room, ok := g.rooms[gm.ID.String()]; ok {
-		// create the sessions slice from the map
-		msg := WSGameDto{
-			ID:       &gm.ID,
-			Settings: &gm.Settings,
-			Sessions: gm.Sessions,
-		}
-		payload := WSPayload{
-			Event: ev,
-			Data:  msg,
-		}
-		room.broadcast <- payload
-		return nil
-	} else {
-		return ErrRoomNotFound
-	}
 }
 
 // ServeHTTP handles websocket requests for GameSocket
@@ -93,9 +89,4 @@ func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		g.rooms[id] = NewRoom(id, game.Settings)
 	}
 	room.join <- NewClient(room, conn)
-}
-
-func NewGameSocket(fgh game.FindGameByIDQueryHandler) *GameSocket {
-	sock := &GameSocket{make(map[string]*Room), fgh}
-	return sock
 }

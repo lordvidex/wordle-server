@@ -5,14 +5,12 @@ import (
 )
 
 type Queries struct {
-	FindGameQueryHandler     FindGameByIDQueryHandler
-	FindGameByInviteHandler  FindByInviteIDQueryHandler
-	FindAllGamesQueryHandler FindAllGamesQueryHandler
+	FindGameQueryHandler FindGameByIDQueryHandler
 }
 
 type Commands struct {
-	StartGameHandler   StartGameHandler
-	CreateGameHandler  CreateGameHandler
+	CreateGameHandler CreateGameHandler
+	SubmitResultHandler SubmitResultHandler
 	CreateLobbyHandler CreateLobbyHandler
 }
 
@@ -21,17 +19,15 @@ type UseCases struct {
 	Commands Commands
 }
 
-func NewUseCases(repo Repository, g words.RandomHandler, i InviteIDGenerator, n NotificationService) UseCases {
+func NewUseCases(repo Repository, g words.RandomHandler,i InviteIDGenerator, a AwardSystem, l LobbyCreator) UseCases {
 	return UseCases{
 		Queries: Queries{
-			FindGameQueryHandler:     NewFindGameByIDQueryHandler(repo),
-			FindGameByInviteHandler:  NewFindByInviteIDQueryHandler(repo),
-			FindAllGamesQueryHandler: NewFindAllGamesQueryHandler(repo),
+			FindGameQueryHandler: NewFindGameByIDQueryHandler(repo),
 		},
 		Commands: Commands{
-			StartGameHandler:  NewStartGameCommandHandler(repo, g, n),
-			CreateGameHandler: NewCreateGameHandler(repo, i),
-			CreateLobbyHandler: NewCreateLobbyHandler(i),
+			SubmitResultHandler: NewSubmitResultHandler(repo, a),
+			CreateGameHandler: NewCreateGameHandler(repo, g),
+			CreateLobbyHandler: NewCreateLobbyHandler(i, l),
 		},
 	}
 }

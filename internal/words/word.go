@@ -1,5 +1,9 @@
 package words
 
+import (
+	"database/sql"
+)
+
 // LetterStatus is an enum type for the Status of a letter in a word guess
 // -1 stands for Incorrect
 // 0 stands for a letter that is in the wrong position
@@ -23,19 +27,26 @@ const (
 // R -> Exists
 // D -> Incorrect
 //
-type Word string
+type Word struct {
+	Word     string
+	PlayedAt sql.NullTime
+}
 
 func New(word string) Word {
-	return Word(word)
+	return Word{word, sql.NullTime{}}
+}
+
+func (w Word) Runes() []rune {
+	return []rune(w.Word)
 }
 
 // CompareTo compares the word to the correct word
 // and returns LetterStatus of each letter of Word accordingly
 // Space Complexity: O(n)
 // Time Complexity: O(n)
-func (instance Word) CompareTo(correctWord Word) []LetterStatus {
-	correctRunes := []rune(correctWord)
-	instanceRunes := []rune(instance)
+func (w Word) CompareTo(correctWord Word) []LetterStatus {
+	correctRunes := correctWord.Runes()
+	instanceRunes := w.Runes()
 
 	wordStatus := make([]LetterStatus, len(instanceRunes))
 	for key := range instanceRunes {
@@ -73,4 +84,8 @@ func (instance Word) CompareTo(correctWord Word) []LetterStatus {
 		}
 	}
 	return wordStatus
+}
+
+func (w Word) String() string {
+	return w.Word
 }

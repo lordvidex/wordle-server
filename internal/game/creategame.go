@@ -1,10 +1,20 @@
 package game
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"github.com/lordvidex/wordle-wf/internal/words"
+	"time"
+)
+
+const (
+	RandomWordLength = 5
+)
 
 type CreateGameCommand struct {
-	Player   *Player
-	Settings Settings
+	CaptainID   uuid.UUID
+	Settings    Settings
+	InviteID    string
+	PlayerCount int
 }
 
 type CreateGameHandler interface {
@@ -12,26 +22,25 @@ type CreateGameHandler interface {
 }
 
 type createGameHandler struct {
-	repo              Repository
-	inviteIdGenerator InviteIDGenerator
+	repo                Repository
+	randomWordGenerator words.RandomHandler
 }
 
-func NewCreateGameHandler(repo Repository, inviteIdGenerator InviteIDGenerator) CreateGameHandler {
-	return &createGameHandler{repo, inviteIdGenerator}
+func NewCreateGameHandler(repo Repository, randomWordGen words.RandomHandler) CreateGameHandler {
+	return &createGameHandler{repo, randomWordGen}
 }
 
 func (h *createGameHandler) Handle(command CreateGameCommand) (*Game, error) {
 	game := &Game{
-		ID:       uuid.New(),
-		InviteID: h.inviteIdGenerator.Generate(),
-		Settings: command.Settings,
+		ID:          uuid.New(),
+		Settings:    command.Settings,
+		Word:        h.randomWordGenerator.GetRandomWord(RandomWordLength),
+		InviteID:    command.InviteID,
+		StartTime:   time.Now(),
+		CreatorID:   command.CaptainID,
+		PlayerCount: command.PlayerCount,
 	}
 	game, err := h.repo.Create(game)
-	if err != nil {
-		return nil, err
-	}
-	// add the player that created the game
-	err = h.repo.Join(game.ID.String(), command.Player)
 	if err != nil {
 		return nil, err
 	}

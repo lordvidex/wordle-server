@@ -17,10 +17,11 @@ func createGame(t *testing.T) *game.Game {
 	}
 	return gm
 }
+
 func Test_gameRepository_UpdateSettings(t *testing.T) {
 	g := createGame(t)
 	defer t.Cleanup(func() {
-		_ = mockGameRepo.Delete(g.ID.String())
+		_ = mockGameRepo.Delete(g.ID)
 	})
 	type args struct {
 		settings *game.Settings
@@ -40,51 +41,6 @@ func Test_gameRepository_UpdateSettings(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := mockGameRepo.UpdateSettings(tt.args.settings, tt.args.gameID); (err != nil) != tt.wantErr {
 				t.Errorf("UpdateSettings() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func TestIsEager(t *testing.T) {
-	type args struct{}
-	type args2 struct{}
-	tests := []struct {
-		name            string
-		eagerType       [2]interface{}
-		registeredTypes []interface{}
-		want            bool
-	}{
-		{"nil",
-			[2]interface{}{nil, nil},
-			[]interface{}{nil},
-			false,
-		},
-		{"empty",
-			[2]interface{}{args{}, &args{}},
-			[]interface{}{},
-			false,
-		},
-		{"not found",
-			[2]interface{}{args{}, &args{}},
-			[]interface{}{args2{}},
-			false,
-		},
-		{"found pointer",
-			[2]interface{}{args{}, &args{}},
-			[]interface{}{&args{}},
-			true,
-		},
-		{
-			"found struct",
-			[2]interface{}{args{}, &args{}},
-			[]interface{}{args{}},
-			true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := isEager(tt.eagerType, tt.registeredTypes...); got != tt.want {
-				t.Errorf("isEager() = %v, want %v", got, tt.want)
 			}
 		})
 	}
