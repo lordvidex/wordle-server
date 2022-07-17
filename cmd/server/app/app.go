@@ -136,7 +136,11 @@ func registerApi(router *mux.Router, cases game.UseCases) {
 
 		router.HandleFunc("/{id: [0-9]+}", func(w http.ResponseWriter, r *http.Request) {
 			gameId := mux.Vars(r)["id"]
-			cases.Queries.FindGameQueryHandler.Handle(game.FindGameQuery{ID: uuid.Must(uuid.Parse(gameId))})
+			gameUUID, err := uuid.Parse(gameId)
+			if err != nil {
+				json.NewEncoder(w).Encode(HttpError{Error: err, ErrorMessage: err.Error()})
+			}
+			cases.Queries.FindGameQueryHandler.Handle(game.FindGameQuery{ID: gameUUID})
 		})
 	})
 
