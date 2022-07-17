@@ -84,13 +84,13 @@ func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	room, ok := g.rooms[id]
 	if !ok {
 		// check if such a game exists
-		_, err := g.Fgh.Handle(game.FindGameQuery{ID: _uuid})
+		game, err := g.Fgh.Handle(game.FindGameQuery{ID: _uuid})
 		if err != nil {
 			fmt.Println("error finding game", err)
 			return
 		}
 		// create new room
-		g.rooms[id] = NewRoom(id)
+		g.rooms[id] = NewRoom(id, game.Settings)
 	}
 	room.join <- NewClient(room, conn)
 }

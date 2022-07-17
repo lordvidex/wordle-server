@@ -4,20 +4,6 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/words"
 )
 
-type CreateLobbyRequestDto struct {
-	Settings   Settings `json:"settings"`
-	PlayerName string   `json:"playerName"` 
-}
-
-type JoinOrLeaveGameRequestDto struct {
-	ID         int64  `json:"id"`
-	PlayerName string `json:"playerName"`
-}
-
-type StartGameRequestDto struct {
-	ID int64 `json:"id"`
-}
-
 type Queries struct {
 	FindGameQueryHandler     FindGameByIDQueryHandler
 	FindGameByInviteHandler  FindByInviteIDQueryHandler
@@ -25,8 +11,9 @@ type Queries struct {
 }
 
 type Commands struct {
-	StartGameHandler  StartGameHandler
-	CreateGameHandler CreateGameHandler
+	StartGameHandler   StartGameHandler
+	CreateGameHandler  CreateGameHandler
+	CreateLobbyHandler CreateLobbyHandler
 }
 
 type UseCases struct {
@@ -44,6 +31,7 @@ func NewUseCases(repo Repository, g words.RandomHandler, i InviteIDGenerator, n 
 		Commands: Commands{
 			StartGameHandler:  NewStartGameCommandHandler(repo, g, n),
 			CreateGameHandler: NewCreateGameHandler(repo, i),
+			CreateLobbyHandler: NewCreateLobbyHandler(i),
 		},
 	}
 }

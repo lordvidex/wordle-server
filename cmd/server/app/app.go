@@ -22,6 +22,21 @@ import (
 	"github.com/spf13/viper"
 )
 
+type RouteBuilder struct {
+	router *mux.Router
+}
+
+func (routeBuilder *RouteBuilder) MakeRoute(path string, f func(RouteBuilder, *mux.Router)) *RouteBuilder {
+	apiRouter := routeBuilder.router.PathPrefix(path).Subrouter()
+	f(RouteBuilder{router: apiRouter}, apiRouter)
+	return routeBuilder
+}
+
+type HttpError struct {
+	ErrorMessage string `json:"errorMessage"`
+	Error        any    `json:"error"`
+}
+
 func connectDB(c *DBConfig) (*pgx.Conn, error) {
 	var dsn string
 	if c.Url != "" {
@@ -99,21 +114,24 @@ func registerWS(router *mux.Router, ws http.Handler) {
 // registerApi registers the API endpoints.
 func registerApi(router *mux.Router, cases game.UseCases) {
 	// main api endpoint
-	apiRouter := router.PathPrefix("/api").Subrouter() 
+	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(middleware.HandleError, middleware.JSONContent, middleware.Logger)
 
 	gameRouteBuilder := &RouteBuilder{router: apiRouter}
 	gameRouteBuilder.MakeRoute("/game", func(routeBuilder RouteBuilder, router *mux.Router) {
-		router.HandleFunc("/create-lobby", func(w http.ResponseWriter, r *http.Request) {
-			request := game.CreateGameRequestDto{}
+		router.HandleFunc("/lobby", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("content-type", "application/json")
+			request := game.CreateLobbyRequestDto{}
 			jsonError := json.NewDecoder(r.Body).Decode(&request)
 			if jsonError != nil {
 				fmt.Printf("%+v\n", jsonError)
 			}
-			cases.Commands.CreateGameHandler.Handle(&game.CreateGameCommand{Settings: request.Settings})
-			// create websocket room
-			// send room info to client
-			// client connects creator to the room
+			lobbyId, err := cases.Commands.CreateLobbyHandler.Handle(request)
+			if err != nil {
+				json.NewEncoder(w).Encode(HttpError{Error: err, ErrorMessage: err.Error()})
+				return
+			}
+			json.NewEncoder(w).Encode(lobbyId)
 		})
 
 		router.HandleFunc("/{id: [0-9]+}", func(w http.ResponseWriter, r *http.Request) {

@@ -8,17 +8,19 @@ type Room struct {
 	broadcast chan interface{}
 	join      chan *Client
 	leave     chan *Client
+	settings  game.Settings
 }
 
 // NewRoom creates a new room for gamers playing game.Game with Room.ID
 // and initializes all room's channels
-func NewRoom(id string) *Room {
+func NewRoom(id string, settings game.Settings) *Room {
 	return &Room{
 		ID:        id,
 		players:   make(map[*Client]bool),
 		broadcast: make(chan interface{}),
 		join:      make(chan *Client),
 		leave:     make(chan *Client),
+		settings:  settings,
 	}
 }
 
@@ -51,7 +53,7 @@ func (r *Room) Run() {
 				Event: game.EventPlayerLeft,
 			}
 
-		// broadcast message to all clients 
+		// broadcast message to all clients
 		case msg := <-r.broadcast:
 			for player := range r.players {
 				select {
