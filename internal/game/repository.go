@@ -1,5 +1,28 @@
 package game
 
+import (
+	"database/sql"
+	"encoding/json"
+)
+
+type NullInt64 struct {
+	sql.NullInt64
+}
+
+// NullInt64
+func (nullInt64 *NullInt64) MarshalJSON() ([]byte, error) {
+	if !nullInt64.Valid {
+		return []byte("null"), nil
+	}
+	return json.Marshal(nullInt64.Int64)
+}
+
+func (nullInt64 *NullInt64) UnmarshalJSON(b []byte) error {
+	err := json.Unmarshal(b, &nullInt64.Int64)
+	nullInt64.Valid = (err == nil && nullInt64.Int64 > 0)
+	return err
+}
+
 // Repository is the interface for storing game properties and state
 type Repository interface {
 	// Create creates a new game and the settings at the same time

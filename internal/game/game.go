@@ -76,12 +76,12 @@ func NewSession(player *Player) *Session {
 }
 
 type Settings struct {
-	WordLength            int  `json:"word_length"`
-	Trials                int  `json:"trials"`
-	PlayerCount           int  `json:"player_count"`
-	Analytics             bool `json:"has_analytics"`
-	RecordTime            bool `json:"should_record_time"`
-	ViewOpponentsSessions bool `json:"can_view_opponents_sessions"`
+	WordLength            int `json:"word_length"`
+	Trials                int `json:"trials"`
+	PlayerCount           int `json:"player_count"`
+	Analytics             bool  `json:"has_analytics"`
+	RecordTime            bool  `json:"should_record_time"`
+	ViewOpponentsSessions bool  `json:"can_view_opponents_sessions"`
 }
 
 // NewSettings creates a new Settings struct

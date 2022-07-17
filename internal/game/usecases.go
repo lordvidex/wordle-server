@@ -11,8 +11,9 @@ type Queries struct {
 }
 
 type Commands struct {
-	StartGameHandler  StartGameHandler
-	CreateGameHandler CreateGameHandler
+	StartGameHandler   StartGameHandler
+	CreateGameHandler  CreateGameHandler
+	CreateLobbyHandler CreateLobbyHandler
 }
 
 type UseCases struct {
@@ -30,6 +31,7 @@ func NewUseCases(repo Repository, g words.RandomHandler, i InviteIDGenerator, n 
 		Commands: Commands{
 			StartGameHandler:  NewStartGameCommandHandler(repo, g, n),
 			CreateGameHandler: NewCreateGameHandler(repo, i),
+			CreateLobbyHandler: NewCreateLobbyHandler(i),
 		},
 	}
 }
