@@ -1,6 +1,9 @@
 package auth
 
-import "errors"
+import (
+	"errors"
+	"github.com/lordvidex/wordle-wf/internal/game"
+)
 
 // Token represents a token used to authenticate a user.
 type Token string
@@ -11,27 +14,20 @@ var (
 )
 
 type QueryGetUserByToken interface {
-	Handle(token Token) (*User, error)
+	Handle(token Token) (*game.Player, error)
 }
 
 type userTokenDecoder struct {
 	tokenHelper TokenHelper
 }
 
-func (d *userTokenDecoder) Handle(token Token) (*User, error) {
-	user, err := d.tokenHelper.Decode(token)
+func (d *userTokenDecoder) Handle(token Token) (*game.Player, error) {
+	var payload game.Player
+	err := d.tokenHelper.Decode(token, &payload)
 	if err != nil {
-		return nil, err
-	}
-	switch user.(type) {
-	case *User:
-		return user.(*User), nil
-	case User:
-		instance := user.(User)
-		return &instance, nil
-	default:
 		return nil, ErrInvalidToken
 	}
+	return &payload, nil
 }
 
 func NewUserTokenDecoder(tokenHelper TokenHelper) QueryGetUserByToken {
