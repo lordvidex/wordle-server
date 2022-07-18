@@ -25,6 +25,6 @@ type PasswordChecker interface {
 // TokenHelper generates a token given a payload.
 // and also decodes this token back to get the user payload.
 type TokenHelper interface {
-	Generate(payload interface{}) (Token, error)
-	Decode(token Token) (interface{}, error)
+	Generate(payload *game.Player) (Token, error)
+	Decode(token Token, payload *game.Player) error
 }

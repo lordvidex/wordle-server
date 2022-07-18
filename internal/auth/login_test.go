@@ -1,9 +1,11 @@
 package auth
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
-	"testing"
+	game "github.com/lordvidex/wordle-wf/internal/game"
 )
 
 func TestLoginHandler_Handle(t *testing.T) {
@@ -29,7 +31,7 @@ func TestLoginHandler_Handle(t *testing.T) {
 			args{LoginCommand{Email: "hello@gmail.com", Password: "password"}},
 			func(f *fields) {
 				id := uuid.New()
-				f.repository.EXPECT().FindByEmail("hello@gmail.com").Return(&User{id, "mathew", "hello@gmail.com", "passwordhash"}, nil)
+				f.repository.EXPECT().FindByEmail("hello@gmail.com").Return(&game.Player{ID: id, Name: "mathew", Email: "hello@gmail.com", Password: "passwordhash"}, nil)
 				f.passwordChecker.EXPECT().Check("password", "passwordhash").Return(true)
 				f.tokenGenerator.EXPECT().Generate(gomock.Any()).Return(Token("hello@gmail.compassword"))
 			},
@@ -38,7 +40,7 @@ func TestLoginHandler_Handle(t *testing.T) {
 		},
 		{"invalid password",
 			args{LoginCommand{Email: "hello@gmail.com", Password: "passt"}}, func(f *fields) {
-				f.repository.EXPECT().FindByEmail("hello@gmail.com").Return(&User{uuid.New(), "mathew", "hello@gmail.com", "password"}, nil)
+				f.repository.EXPECT().FindByEmail("hello@gmail.com").Return(&game.Player{ID: uuid.New(), Name: "mathew", Email: "hello@gmail.com", Password: "password"}, nil)
 				f.passwordChecker.EXPECT().Check("passt", "password").Return(false)
 			}, "", true},
 	}

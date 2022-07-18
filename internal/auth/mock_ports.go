@@ -141,22 +141,21 @@ func (m *MockTokenHelper) EXPECT() *MockTokenHelperMockRecorder {
 }
 
 // Decode mocks base method.
-func (m *MockTokenHelper) Decode(token Token) (interface{}, error) {
+func (m *MockTokenHelper) Decode(token Token, payload *game.Player) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Decode", token)
-	ret0, _ := ret[0].(interface{})
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "Decode", token, payload)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Decode indicates an expected call of Decode.
-func (mr *MockTokenHelperMockRecorder) Decode(token interface{}) *gomock.Call {
+func (mr *MockTokenHelperMockRecorder) Decode(token, payload interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Decode", reflect.TypeOf((*MockTokenHelper)(nil).Decode), token)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Decode", reflect.TypeOf((*MockTokenHelper)(nil).Decode), token, payload)
 }
 
 // Generate mocks base method.
-func (m *MockTokenHelper) Generate(payload interface{}) (Token, error) {
+func (m *MockTokenHelper) Generate(payload *game.Player) (Token, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Generate", payload)
 	ret0, _ := ret[0].(Token)
