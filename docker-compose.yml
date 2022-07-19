@@ -27,12 +27,12 @@ services:
   migrate:
     image: migrate/migrate
     environment:
-      - DATABASE_URL=${DATABASE_URL}
+      - POSTGRES_URL=${POSTGRES_URL}
     volumes:
       - ./internal/db/pg/migration:/migrations
     depends_on:
       - pg-dev
-    command: ["-path", "/migrations/", "-database",  "${DATABASE_URL}", "up"]
+    command: ["-path", "/migrations/", "-database",  "${POSTGRES_URL}", "up"]
 
 volumes:
   db:
