@@ -17,9 +17,10 @@ type Repository interface {
 	Create(name string, email string, password string) (*game.Player, error)
 }
 
-// PasswordChecker receives the password and the hash and compares if they are equal
-type PasswordChecker interface {
-	Check(password string, hash string) bool
+// PasswordHelper receives the password and the hash and compares if they are equal
+type PasswordHelper interface {
+	Validate(password string, hash string) bool
+	Hash(password string) (string, error)
 }
 
 // TokenHelper generates a token given a payload.

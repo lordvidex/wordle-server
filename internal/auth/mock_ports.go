@@ -80,41 +80,56 @@ func (mr *MockRepositoryMockRecorder) FindByID(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockRepository)(nil).FindByID), id)
 }
 
-// MockPasswordChecker is a mock of PasswordChecker interface.
-type MockPasswordChecker struct {
+// MockPasswordHelper is a mock of PasswordHelper interface.
+type MockPasswordHelper struct {
 	ctrl     *gomock.Controller
-	recorder *MockPasswordCheckerMockRecorder
+	recorder *MockPasswordHelperMockRecorder
 }
 
-// MockPasswordCheckerMockRecorder is the mock recorder for MockPasswordChecker.
-type MockPasswordCheckerMockRecorder struct {
-	mock *MockPasswordChecker
+// MockPasswordHelperMockRecorder is the mock recorder for MockPasswordHelper.
+type MockPasswordHelperMockRecorder struct {
+	mock *MockPasswordHelper
 }
 
-// NewMockPasswordChecker creates a new mock instance.
-func NewMockPasswordChecker(ctrl *gomock.Controller) *MockPasswordChecker {
-	mock := &MockPasswordChecker{ctrl: ctrl}
-	mock.recorder = &MockPasswordCheckerMockRecorder{mock}
+// NewMockPasswordHelper creates a new mock instance.
+func NewMockPasswordHelper(ctrl *gomock.Controller) *MockPasswordHelper {
+	mock := &MockPasswordHelper{ctrl: ctrl}
+	mock.recorder = &MockPasswordHelperMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockPasswordChecker) EXPECT() *MockPasswordCheckerMockRecorder {
+func (m *MockPasswordHelper) EXPECT() *MockPasswordHelperMockRecorder {
 	return m.recorder
 }
 
-// Check mocks base method.
-func (m *MockPasswordChecker) Check(password, hash string) bool {
+// Hash mocks base method.
+func (m *MockPasswordHelper) Hash(password string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Check", password, hash)
+	ret := m.ctrl.Call(m, "Hash", password)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Hash indicates an expected call of Hash.
+func (mr *MockPasswordHelperMockRecorder) Hash(password interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Hash", reflect.TypeOf((*MockPasswordHelper)(nil).Hash), password)
+}
+
+// Validate mocks base method.
+func (m *MockPasswordHelper) Validate(password, hash string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Validate", password, hash)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
-// Check indicates an expected call of Check.
-func (mr *MockPasswordCheckerMockRecorder) Check(password, hash interface{}) *gomock.Call {
+// Validate indicates an expected call of Validate.
+func (mr *MockPasswordHelperMockRecorder) Validate(password, hash interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockPasswordChecker)(nil).Check), password, hash)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Validate", reflect.TypeOf((*MockPasswordHelper)(nil).Validate), password, hash)
 }
 
 // MockTokenHelper is a mock of TokenHelper interface.

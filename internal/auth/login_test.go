@@ -5,14 +5,14 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
-	game "github.com/lordvidex/wordle-wf/internal/game"
+	"github.com/lordvidex/wordle-wf/internal/game"
 )
 
 func TestLoginHandler_Handle(t *testing.T) {
 	type fields struct {
 		repository      *MockRepository
 		tokenGenerator  *MockTokenHelper
-		passwordChecker *MockPasswordChecker
+		passwordChecker *MockPasswordHelper
 	}
 
 	type args struct {
@@ -32,8 +32,8 @@ func TestLoginHandler_Handle(t *testing.T) {
 			func(f *fields) {
 				id := uuid.New()
 				f.repository.EXPECT().FindByEmail("hello@gmail.com").Return(&game.Player{ID: id, Name: "mathew", Email: "hello@gmail.com", Password: "passwordhash"}, nil)
-				f.passwordChecker.EXPECT().Check("password", "passwordhash").Return(true)
-				f.tokenGenerator.EXPECT().Generate(gomock.Any()).Return(Token("hello@gmail.compassword"))
+				f.passwordChecker.EXPECT().Validate("password", "passwordhash").Return(true)
+				f.tokenGenerator.EXPECT().Generate(gomock.Any()).Return(Token("hello@gmail.compassword"), nil)
 			},
 			"hello@gmail.compassword",
 			false,
@@ -41,7 +41,7 @@ func TestLoginHandler_Handle(t *testing.T) {
 		{"invalid password",
 			args{LoginCommand{Email: "hello@gmail.com", Password: "passt"}}, func(f *fields) {
 				f.repository.EXPECT().FindByEmail("hello@gmail.com").Return(&game.Player{ID: uuid.New(), Name: "mathew", Email: "hello@gmail.com", Password: "password"}, nil)
-				f.passwordChecker.EXPECT().Check("passt", "password").Return(false)
+				f.passwordChecker.EXPECT().Validate("passt", "password").Return(false)
 			}, "", true},
 	}
 
@@ -52,17 +52,21 @@ func TestLoginHandler_Handle(t *testing.T) {
 			f := fields{
 				repository:      NewMockRepository(ctrl),
 				tokenGenerator:  NewMockTokenHelper(ctrl),
-				passwordChecker: NewMockPasswordChecker(ctrl),
+				passwordChecker: NewMockPasswordHelper(ctrl),
 			}
 			tt.prepare(&f)
 			h := NewLoginHandler(f.repository, f.tokenGenerator, f.passwordChecker)
 			got, err := h.Handle(tt.args.command)
+			// error cases
 			if (err != nil) != tt.wantErr {
 				t.Errorf("LoginHandler.Handle() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("LoginHandler.Handle() = %v, want %v", got, tt.want)
+			if got == nil && !tt.wantErr {
+				t.Errorf("expected a token with a player, got nil")
+			}
+			if got != nil && got.Token != tt.want {
+				t.Errorf("expected token %v, got %v", tt.want, got.Token)
 			}
 		})
 	}

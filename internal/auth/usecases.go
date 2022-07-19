@@ -1,7 +1,7 @@
 package auth
 
 type Queries struct {
-	GetUserByToken QueryGetUserByToken
+	GetUserByToken GetUserByTokenQueryHandler
 }
 
 type Commands struct {
@@ -14,18 +14,14 @@ type UseCases struct {
 	Commands Commands
 }
 
-func NewUseCases(
-	repo Repository, 
-	tokenHelper TokenHelper,
-	 passwordChecker PasswordChecker,
-	) UseCases {
+func NewUseCases(r Repository, t TokenHelper, p PasswordHelper) UseCases {
 	return UseCases{
 		Queries: Queries{
-			GetUserByToken: NewUserTokenDecoder(tokenHelper),
+			GetUserByToken: NewUserTokenDecoder(t),
 		},
 		Commands: Commands{
-			Login:    NewLoginHandler(repo, tokenHelper, passwordChecker),
-			Register: NewRegisterHandler(repo, tokenHelper),
+			Login:    NewLoginHandler(r, t, p),
+			Register: NewRegisterHandler(r, t, p),
 		},
 	}
 }

@@ -4,37 +4,24 @@ package app
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
-	"github.com/google/uuid"
+	"github.com/lordvidex/wordle-wf/internal/api/handlers"
+	"github.com/lordvidex/wordle-wf/internal/auth"
+
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v4"
 	"github.com/lordvidex/wordle-wf/internal/adapters"
+	"github.com/lordvidex/wordle-wf/internal/api"
 	"github.com/lordvidex/wordle-wf/internal/db/pg"
 	"github.com/lordvidex/wordle-wf/internal/game"
 	"github.com/lordvidex/wordle-wf/internal/middleware"
 	"github.com/lordvidex/wordle-wf/internal/websockets"
 	"github.com/lordvidex/wordle-wf/internal/words"
-	"github.com/spf13/viper"
 )
-
-type RouteBuilder struct {
-	router *mux.Router
-}
-
-func (routeBuilder *RouteBuilder) MakeRoute(path string, f func(RouteBuilder, *mux.Router)) *RouteBuilder {
-	apiRouter := routeBuilder.router.PathPrefix(path).Subrouter()
-	f(RouteBuilder{router: apiRouter}, apiRouter)
-	return routeBuilder
-}
-
-type HttpError struct {
-	ErrorMessage string `json:"errorMessage"`
-	Error        any    `json:"error"`
-}
 
 func connectDB(c *DBConfig) (*pgx.Conn, error) {
 	var dsn string
@@ -56,7 +43,7 @@ func connectDB(c *DBConfig) (*pgx.Conn, error) {
 }
 
 func Start() {
-	conf, err := loadConfig()
+	conf, err := NewConfig()
 	if err != nil {
 		log.Fatal("error occured loading configs", err)
 	}
@@ -71,7 +58,7 @@ func Start() {
 
 	// repositories
 	gameRepo := pg.NewGameRepository(pgConn)
-	//authRepo := pg.NewUserRepository(pgConn)
+	authRepo := pg.NewUserRepository(pgConn)
 
 	// services and dependencies
 	var gameSocket *websockets.GameSocket
@@ -83,7 +70,11 @@ func Start() {
 
 	// usecases and application layer components
 	wordsUsecase := words.NewUseCases(adapters.NewLocalStringGenerator())
-	//authUsecase := auth.NewUseCases(authRepo, nil, nil)
+	authUsecase := auth.NewUseCases(
+		authRepo,
+		adapters.NewPASETOTokenHelper(conf.Token.PASETOSecret, time.Hour),
+		adapters.NewBcryptHelper(),
+	)
 	gameUsecase := game.NewUseCases(
 		gameRepo,
 		wordsUsecase.RandomWordHandler,
@@ -96,7 +87,7 @@ func Start() {
 	gameSocket = websockets.NewGameSocket(gameUsecase.Queries.FindGameQueryHandler)
 	router := mux.NewRouter()
 
-	registerApi(router, gameUsecase)
+	registerApi(router, gameUsecase, authUsecase)
 	registerWS(router, gameSocket)
 	registerAsset(router)
 	printEndpoints(router)
@@ -112,50 +103,39 @@ func registerWS(router *mux.Router, ws http.Handler) {
 	router.Handle("/live", ws)
 }
 
+func routerGroup(parent *mux.Router, path string) *mux.Router {
+	return parent.PathPrefix(path).Subrouter()
+}
+
 // registerApi registers the API endpoints.
-func registerApi(router *mux.Router, cases game.UseCases) {
+func registerApi(router *mux.Router, gameCases game.UseCases, authCases auth.UseCases) {
+	// middlewares
+	authMiddleware := api.AuthMiddleware(authCases.Queries.GetUserByToken)
 	// main api endpoint
 	apiRouter := router.PathPrefix("/api").Subrouter()
-	apiRouter.Use(middleware.HandleError, middleware.JSONContent, middleware.Logger)
+	apiRouter.Use(
+		middleware.HandleError,
+		middleware.JSONContent,
+		middleware.Logger,
+	)
 
-	gameRouteBuilder := &RouteBuilder{router: apiRouter}
-	gameRouteBuilder.MakeRoute("/game", func(routeBuilder RouteBuilder, router *mux.Router) {
-		router.HandleFunc("/lobby", func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("content-type", "application/json")
-			request := game.CreateLobbyRequestDto{}
-			jsonError := json.NewDecoder(r.Body).Decode(&request)
-			if jsonError != nil {
-				fmt.Printf("%+v\n", jsonError)
-			}
-			lobbyId, err := cases.Commands.CreateLobbyHandler.Handle(request)
-			if err != nil {
-				json.NewEncoder(w).Encode(HttpError{Error: err, ErrorMessage: err.Error()})
-				return
-			}
-			json.NewEncoder(w).Encode(lobbyId)
-		})
-
-		router.HandleFunc("/{id: [0-9]+}", func(w http.ResponseWriter, r *http.Request) {
-			gameId := mux.Vars(r)["id"]
-			gameUUID, err := uuid.Parse(gameId)
-			if err != nil {
-				json.NewEncoder(w).Encode(HttpError{Error: err, ErrorMessage: err.Error()})
-			}
-			cases.Queries.FindGameQueryHandler.Handle(game.FindGameQuery{ID: gameUUID})
-		})
-	})
-
-	// words endpoint
-	//wordsRouter := apiRouter.PathPrefix("/words").Subrouter()
+	gameRouter := routerGroup(apiRouter, "/game")
+	gameRouter.Use(authMiddleware)
+	grh := handlers.NewGameHandler(gameCases)
+	gameRouter.HandleFunc("/lobby", grh.CreateLobbyHandler).Methods("POST")
+	// TODO(@Israel) - id will be string because of UUID and there will be route clash between this and /lobby
+	gameRouter.HandleFunc("/{id: [0-9]+}", grh.GetGameHandler).Methods("GET")
 
 	// auth endpoints
-	_ = apiRouter.PathPrefix("/auth").Subrouter()
-	
+	authRouter := routerGroup(apiRouter, "/auth")
+	ah := handlers.NewAuthHandler(authCases)
+	authRouter.HandleFunc("/register", ah.RegisterHandler).Methods("POST")
+	authRouter.HandleFunc("/login", ah.LoginHandler).Methods("POST")
 }
 
 // printEndpoints prints the endpoints that are exposed for api consumption
 func printEndpoints(r *mux.Router) {
-	if err := r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+	if err := r.Walk(func(route *mux.Route, _ *mux.Router, _ []*mux.Route) error {
 		path, err := route.GetPathTemplate()
 		if err != nil {
 			return nil
@@ -169,21 +149,4 @@ func printEndpoints(r *mux.Router) {
 	}); err != nil {
 		log.Fatal(err)
 	}
-}
-
-// loadConfig reads the environment variables into *Config
-func loadConfig() (*Config, error) {
-	conf := &Config{
-		DB: NewDBConfig(),
-	}
-	viper.AddConfigPath(".")
-	viper.SetConfigType("env")
-	viper.SetConfigName(".env")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		return nil, err
-	}
-	err = viper.Unmarshal(conf.DB)
-	return conf, err
 }
