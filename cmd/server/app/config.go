@@ -6,8 +6,8 @@ import (
 )
 
 type Config struct {
-	DB    *DBConfig
-	Token *TokenConfig
+	DB    *DBConfig    `mapstructure:",squash"`
+	Token *TokenConfig `mapstructure:",squash"`
 }
 
 func NewConfig() (*Config, error) {
@@ -24,11 +24,10 @@ func NewConfig() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = viper.Unmarshal(c.DB)
+	err = viper.Unmarshal(c)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal DB configs")
+		return nil, errors.Wrap(err, "failed to unmarshal configs")
 	}
-	err = viper.Unmarshal(c.Token)
 	return c, err
 }
 
