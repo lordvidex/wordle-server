@@ -1,7 +1,15 @@
 package app
 
 type Config struct {
-	DB *DBConfig
+	DB    *DBConfig
+	Token *TokenConfig
+}
+
+func NewConfig() *Config {
+	return &Config{
+		DB:    NewDBConfig(),
+		Token: &TokenConfig{},
+	}
 }
 
 type DBConfig struct {
@@ -11,6 +19,10 @@ type DBConfig struct {
 	Password string `mapstructure:"POSTGRES_PASSWORD"`
 	DBName   string `mapstructure:"POSTGRES_DB"`
 	Url      string `mapstructure:"POSTGRES_URL"`
+}
+
+type TokenConfig struct {
+	PASETOSecret string `mapstructure:"PASETO_SECRET"`
 }
 
 func NewDBConfig() *DBConfig {

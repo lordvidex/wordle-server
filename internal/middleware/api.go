@@ -2,8 +2,9 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/lordvidex/wordle-wf/internal/common/werr"
 	"net/http"
+
+	"github.com/lordvidex/wordle-wf/internal/api"
 )
 
 type ResponseStatusRecorder struct {
@@ -11,7 +12,7 @@ type ResponseStatusRecorder struct {
 	Status int
 }
 
-func (w ResponseStatusRecorder) WriteHeader(status int) {
+func (w *ResponseStatusRecorder) WriteHeader(status int) {
 	w.Status = status
 	w.ResponseWriter.WriteHeader(status)
 }
@@ -27,7 +28,7 @@ func JSONContent(next http.Handler) http.Handler {
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		recorder := ResponseStatusRecorder{ResponseWriter: w, Status: http.StatusOK}
-		next.ServeHTTP(recorder, r)
+		next.ServeHTTP(&recorder, r)
 		fmt.Printf("RESPONSE [%s] %d %s\n", r.Method, recorder.Status, r.URL.Path)
 	})
 }
@@ -36,9 +37,9 @@ func HandleError(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				wordErr, ok := err.(*werr.WordErr)
+				wordErr, ok := err.(api.Error)
 				if !ok {
-					wordErr = werr.InternalServerError(err.(error).Error())
+					wordErr = api.InternalServerError(err.(error).Error())
 				}
 				w.WriteHeader(wordErr.StatusCode)
 				wordErr.WriteJSON(w)

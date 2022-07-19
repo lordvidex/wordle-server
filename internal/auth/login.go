@@ -2,6 +2,8 @@ package auth
 
 import (
 	"errors"
+
+	game "github.com/lordvidex/wordle-wf/internal/game"
 )
 
 var (
@@ -14,31 +16,40 @@ type LoginCommand struct {
 	Password string
 }
 
+type PlayerWithToken struct {
+	Player *game.Player
+	Token  Token
+}
+
 type LoginHandler interface {
-	Handle(command LoginCommand) (token Token, err error)
+	Handle(command LoginCommand) (token *PlayerWithToken, err error)
 }
 
 type loginHandler struct {
 	repo            Repository
 	tokenGenerator  TokenHelper
-	passwordChecker PasswordChecker
+	passwordChecker PasswordHelper
 }
 
-func (h *loginHandler) Handle(command LoginCommand) (token Token, err error) {
+func (h *loginHandler) Handle(command LoginCommand) (result *PlayerWithToken, err error) {
 	user, err := h.repo.FindByEmail(command.Email)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	if !h.passwordChecker.Check(command.Password, user.Password) {
-		return "", ErrInvalidPassword
+	if !h.passwordChecker.Validate(command.Password, user.Password) {
+		return nil, ErrInvalidPassword
 	}
-	return h.tokenGenerator.Generate(user)
+	token, err := h.tokenGenerator.Generate(user)
+	if err != nil {
+		return nil, err
+	}
+	return &PlayerWithToken{user, token}, nil
 }
 
 func NewLoginHandler(
 	repo Repository,
 	tokenGenerator TokenHelper,
-	passChecker PasswordChecker,
+	passChecker PasswordHelper,
 ) LoginHandler {
 	return &loginHandler{repo, tokenGenerator, passChecker}
 }

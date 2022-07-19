@@ -13,16 +13,21 @@ type RegisterHandler interface {
 type registerHandler struct {
 	repo           Repository
 	tokenGenerator TokenHelper
+	passwordHelper PasswordHelper
 }
 
 func (h *registerHandler) Handle(command RegisterCommand) (token Token, err error) {
-	player, err := h.repo.Create(command.Name, command.Email, command.Password)
+	hashedPassword, err := h.passwordHelper.Hash(command.Password)
+	if err != nil {
+		return "", err
+	}
+	player, err := h.repo.Create(command.Name, command.Email, hashedPassword)
 	if err != nil {
 		return "", err
 	}
 	return h.tokenGenerator.Generate(player)
 }
 
-func NewRegisterHandler(repo Repository, tokenGenerator TokenHelper) RegisterHandler {
-	return &registerHandler{repo, tokenGenerator}
+func NewRegisterHandler(repo Repository, tokenGenerator TokenHelper, passwordHelper PasswordHelper) RegisterHandler {
+	return &registerHandler{repo, tokenGenerator, passwordHelper}
 }

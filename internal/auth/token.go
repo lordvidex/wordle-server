@@ -13,7 +13,7 @@ var (
 	ErrInvalidToken = errors.New("invalid token")
 )
 
-type QueryGetUserByToken interface {
+type GetUserByTokenQueryHandler interface {
 	Handle(token Token) (*game.Player, error)
 }
 
@@ -30,6 +30,6 @@ func (d *userTokenDecoder) Handle(token Token) (*game.Player, error) {
 	return &payload, nil
 }
 
-func NewUserTokenDecoder(tokenHelper TokenHelper) QueryGetUserByToken {
+func NewUserTokenDecoder(tokenHelper TokenHelper) GetUserByTokenQueryHandler {
 	return &userTokenDecoder{tokenHelper}
 }
