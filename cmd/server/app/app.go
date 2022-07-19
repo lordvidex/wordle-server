@@ -21,7 +21,6 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/middleware"
 	"github.com/lordvidex/wordle-wf/internal/websockets"
 	"github.com/lordvidex/wordle-wf/internal/words"
-	"github.com/spf13/viper"
 )
 
 func connectDB(c *DBConfig) (*pgx.Conn, error) {
@@ -44,7 +43,7 @@ func connectDB(c *DBConfig) (*pgx.Conn, error) {
 }
 
 func Start() {
-	conf, err := loadConfig()
+	conf, err := NewConfig()
 	if err != nil {
 		log.Fatal("error occured loading configs", err)
 	}
@@ -136,7 +135,7 @@ func registerApi(router *mux.Router, gameCases game.UseCases, authCases auth.Use
 
 // printEndpoints prints the endpoints that are exposed for api consumption
 func printEndpoints(r *mux.Router) {
-	if err := r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+	if err := r.Walk(func(route *mux.Route, _ *mux.Router, _ []*mux.Route) error {
 		path, err := route.GetPathTemplate()
 		if err != nil {
 			return nil
@@ -150,20 +149,4 @@ func printEndpoints(r *mux.Router) {
 	}); err != nil {
 		log.Fatal(err)
 	}
-}
-
-// loadConfig reads the environment variables into *Config
-func loadConfig() (*Config, error) {
-	conf := NewConfig()
-	viper.AddConfigPath(".")
-	viper.SetConfigType("env")
-	viper.SetConfigName(".env")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		return nil, err
-	}
-	err = viper.Unmarshal(conf.DB)
-	err = viper.Unmarshal(conf.Token)
-	return conf, err
 }

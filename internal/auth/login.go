@@ -3,11 +3,13 @@ package auth
 import (
 	"errors"
 
-	game "github.com/lordvidex/wordle-wf/internal/game"
+	"github.com/jackc/pgx/v4"
+	"github.com/lordvidex/wordle-wf/internal/game"
 )
 
 var (
 	// ErrInvalidPassword is returned when the password is invalid.
+	ErrUserNotFound    = errors.New("user not found")
 	ErrInvalidPassword = errors.New("invalid password")
 )
 
@@ -34,6 +36,9 @@ type loginHandler struct {
 func (h *loginHandler) Handle(command LoginCommand) (result *PlayerWithToken, err error) {
 	user, err := h.repo.FindByEmail(command.Email)
 	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, ErrUserNotFound
+		}
 		return nil, err
 	}
 	if !h.passwordChecker.Validate(command.Password, user.Password) {
