@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strings"
 
@@ -14,7 +13,7 @@ import (
 type AuthContextKey string
 
 const (
-	DecodedUserKey = "user"
+	DecodedUserKey AuthContextKey = "user_payload"
 )
 const (
 	AuthHeader            = "Authorization"
@@ -69,7 +68,7 @@ func HandleError(next http.Handler) http.Handler {
 	})
 }
 
-func AuthMiddleware(tokenDecoder auth.GetUserByTokenQueryHandler) mux.MiddlewareFunc {
+func AuthMiddleware(tokenDecoder auth.GetUserByTokenQueryHandler) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token := r.Header.Get(AuthHeader)
@@ -78,13 +77,21 @@ func AuthMiddleware(tokenDecoder auth.GetUserByTokenQueryHandler) mux.Middleware
 				Unauthorized(ErrNoToken.Error()).WriteJSON(w)
 				return
 			}
-			if !strings.HasPrefix(token, AuthHeaderValuePrefix) {
+
+			fields := strings.Fields(token)
+			if len(fields) != 2 {
 				w.WriteHeader(http.StatusBadRequest)
 				BadRequest(ErrBadAuthHeader.Error()).WriteJSON(w)
 				return
 			}
-			token = strings.TrimSpace(strings.TrimPrefix(token, AuthHeaderValuePrefix))
-			player, err := tokenDecoder.Handle(auth.Token(token))
+
+			if !strings.EqualFold(fields[0], AuthHeaderValuePrefix) {
+				w.WriteHeader(http.StatusBadRequest)
+				BadRequest(ErrBadAuthHeader.Error()).WriteJSON(w)
+				return
+			}
+
+			player, err := tokenDecoder.Handle(auth.Token(fields[1]))
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				Unauthorized(ErrBadToken.Error()).WriteJSON(w)
