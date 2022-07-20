@@ -18,7 +18,6 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/api"
 	"github.com/lordvidex/wordle-wf/internal/db/pg"
 	"github.com/lordvidex/wordle-wf/internal/game"
-	"github.com/lordvidex/wordle-wf/internal/middleware"
 	"github.com/lordvidex/wordle-wf/internal/websockets"
 	"github.com/lordvidex/wordle-wf/internal/words"
 )
@@ -61,7 +60,7 @@ func Start() {
 	authRepo := pg.NewUserRepository(pgConn)
 
 	// services and dependencies
-	var gameSocket *websockets.GameSocket
+	gameSocket := websockets.NewGameSocket(nil)
 	defer func() {
 		if err := gameSocket.Close(); err != nil {
 			log.Println("error closing websocket", err)
@@ -84,7 +83,7 @@ func Start() {
 	)
 
 	// adapters and external services
-	gameSocket = websockets.NewGameSocket(gameUsecase.Queries.FindGameQueryHandler)
+	gameSocket.Fgh = gameUsecase.Queries.FindGameQueryHandler
 	router := mux.NewRouter()
 
 	registerApi(router, gameUsecase, authUsecase)
@@ -114,9 +113,9 @@ func registerApi(router *mux.Router, gameCases game.UseCases, authCases auth.Use
 	// main api endpoint
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(
-		middleware.HandleError,
-		middleware.JSONContent,
-		middleware.Logger,
+		api.HandleError,
+		api.JSONContent,
+		api.Logger,
 	)
 
 	gameRouter := routerGroup(apiRouter, "/game")

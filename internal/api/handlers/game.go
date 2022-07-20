@@ -19,7 +19,6 @@ func NewGameHandler(gameCases game.UseCases) *gameRouter {
 	return &gameRouter{gameCases}
 }
 func (g *gameRouter) CreateLobbyHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("content-type", "application/json")
 	request := game.CreateLobbyRequestDto{}
 	jsonError := json.NewDecoder(r.Body).Decode(&request)
 	if jsonError != nil {

@@ -56,9 +56,14 @@ func HandleError(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				wordErr, ok := err.(Error)
-				if !ok {
+				var wordErr Error
+				switch err.(type) {
+				case error:
 					wordErr = InternalServerError(err.(error).Error())
+				case string:
+					wordErr = InternalServerError(err.(string))
+				default:
+					wordErr = InternalServerError("unknown error occurred")
 				}
 				w.WriteHeader(wordErr.StatusCode)
 				wordErr.WriteJSON(w)

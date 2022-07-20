@@ -10,7 +10,6 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/game"
 )
 
-// upgrader
 var (
 	upgrader = websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -21,7 +20,6 @@ var (
 	}
 )
 
-// errors
 var (
 	ErrRoomNotFound = errors.New("game room not found")
 )
@@ -37,8 +35,8 @@ type GameSocket struct {
 }
 
 func (g *GameSocket) CreateLobby(settings *game.Settings, id string) (string, error) {
-	//TODO implement me
-	panic("implement me")
+	g.rooms[id] = NewRoom(id, *settings)
+	return id, nil
 }
 
 func NewGameSocket(fgh game.FindGameByIDQueryHandler) *GameSocket {

@@ -8,8 +8,9 @@ import (
 )
 
 var (
+	ErrUserNotFound = errors.New("user not found")
+
 	// ErrInvalidPassword is returned when the password is invalid.
-	ErrUserNotFound    = errors.New("user not found")
 	ErrInvalidPassword = errors.New("invalid password")
 )
 

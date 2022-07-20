@@ -1,6 +1,9 @@
 package websockets
 
-import "github.com/lordvidex/wordle-wf/internal/game"
+import (
+	"fmt"
+	"github.com/lordvidex/wordle-wf/internal/game"
+)
 
 type Room struct {
 	ID        string
@@ -14,6 +17,8 @@ type Room struct {
 // NewRoom creates a new room for gamers playing game.Game with Room.ID
 // and initializes all room's channels
 func NewRoom(id string, settings game.Settings) *Room {
+	fmt.Println("room entered")
+	defer fmt.Println("room left")
 	return &Room{
 		ID:        id,
 		players:   make(map[*Client]bool),
@@ -43,7 +48,7 @@ func (r *Room) Run() {
 		case client := <-r.join:
 			r.players[client] = true
 			r.broadcast <- &WSPayload{
-				// Event: game.EventPlayerJoined, 
+				// Event: game.EventPlayerJoined,
 			}
 
 		// a client left the room

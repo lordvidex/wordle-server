@@ -30,15 +30,15 @@ func (h *createLobbyHandler) Handle(lobby CreateLobbyRequestDto) (string, error)
 		return "", fmt.Errorf("players in a lobby cannot be more than 10")
 	}
 
-	// initialize default values
+	//initialize default values
 	if !lobby.PlayerCount.Valid {
-		lobby.PlayerCount.Scan(10)
+		_ = lobby.PlayerCount.Scan(10)
 	}
 	if !lobby.WordLength.Valid {
-		lobby.WordLength.Scan(5)
+		_ = lobby.WordLength.Scan(5)
 	}
 	if !lobby.Trials.Valid {
-		lobby.Trials.Scan(6)
+		_ = lobby.Trials.Scan(6)
 	}
 
 	settings := &Settings{
