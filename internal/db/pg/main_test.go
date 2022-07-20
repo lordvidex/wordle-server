@@ -19,9 +19,12 @@ var mockGameRepo *gameRepository
 
 func TestMain(m *testing.M) {
 	conn, err := pgx.Connect(context.Background(), testConnString)
+	if err != nil {
+		log.Fatal("failed to connect to database:", err)
+	}
 	err = conn.Ping(context.Background())
 	if err != nil {
-		log.Fatal("failed to connect to database: ", err)
+		log.Fatal("failed to ping the database: ", err)
 	}
 	fmt.Println("connected to database")
 	mockUserRepo = &userRepository{

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"strings"
 
 	"github.com/lordvidex/wordle-wf/internal/auth"
 )
@@ -13,15 +14,17 @@ import (
 type AuthContextKey string
 
 const (
-	DecodedUserKey AuthContextKey = "user"
+	DecodedUserKey = "user"
 )
 const (
-	AuthHeader = "Authorization"
+	AuthHeader            = "Authorization"
+	AuthHeaderValuePrefix = "Bearer"
 )
 
 var (
-	ErrBadToken = errors.New("invalid or expired token")
-	ErrNoToken  = errors.New("no token provided")
+	ErrBadToken      = errors.New("invalid or expired token")
+	ErrNoToken       = errors.New("no token provided")
+	ErrBadAuthHeader = errors.New("authorization header is badly formatted")
 )
 
 type responseStatusRecorder struct {
@@ -75,6 +78,12 @@ func AuthMiddleware(tokenDecoder auth.GetUserByTokenQueryHandler) mux.Middleware
 				Unauthorized(ErrNoToken.Error()).WriteJSON(w)
 				return
 			}
+			if !strings.HasPrefix(token, AuthHeaderValuePrefix) {
+				w.WriteHeader(http.StatusBadRequest)
+				BadRequest(ErrBadAuthHeader.Error()).WriteJSON(w)
+				return
+			}
+			token = strings.TrimSpace(strings.TrimPrefix(token, AuthHeaderValuePrefix))
 			player, err := tokenDecoder.Handle(auth.Token(token))
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -82,7 +91,7 @@ func AuthMiddleware(tokenDecoder auth.GetUserByTokenQueryHandler) mux.Middleware
 				return
 			}
 			ctx := context.WithValue(r.Context(), DecodedUserKey, player)
-			r = r.WithContext(ctx)
+			*r = *r.WithContext(ctx)
 			next.ServeHTTP(w, r)
 		})
 	}
