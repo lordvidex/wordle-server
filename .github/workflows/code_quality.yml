@@ -12,5 +12,5 @@ jobs:
       - name: setup golang
         uses: actions/setup-go@v3.2.0
         with:
-          go-version: "{{ matrix.go_version }}"
+          go-version: "{{ matrix.version }}"
       - run: go test -v ./...
