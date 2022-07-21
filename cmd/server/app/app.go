@@ -14,12 +14,9 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v4"
-	"github.com/lordvidex/wordle-wf/internal/adapters"
 	"github.com/lordvidex/wordle-wf/internal/api"
-	"github.com/lordvidex/wordle-wf/internal/db/pg"
 	"github.com/lordvidex/wordle-wf/internal/game"
 	"github.com/lordvidex/wordle-wf/internal/websockets"
-	"github.com/lordvidex/wordle-wf/internal/words"
 )
 
 func connectDB(c *DBConfig) (*pgx.Conn, error) {
@@ -55,10 +52,6 @@ func Start() {
 		_ = pgConn.Close(context.Background())
 	}()
 
-	// repositories
-	gameRepo := pg.NewGameRepository(pgConn)
-	authRepo := pg.NewUserRepository(pgConn)
-
 	// services and dependencies
 	gameSocket := websockets.NewGameSocket(nil)
 	defer func() {
@@ -66,24 +59,11 @@ func Start() {
 			log.Println("error closing websocket", err)
 		}
 	}()
-
-	// usecases and application layer components
-	wordsUsecase := words.NewUseCases(adapters.NewLocalStringGenerator())
-	authUsecase := auth.NewUseCases(
-		authRepo,
-		adapters.NewPASETOTokenHelper(conf.Token.PASETOSecret, time.Hour),
-		adapters.NewBcryptHelper(),
-	)
-	gameUsecase := game.NewUseCases(
-		gameRepo,
-		wordsUsecase.RandomWordHandler,
-		adapters.NewUniUriGenerator(),
-		adapters.NewAwardSystem(),
-		gameSocket,
-	)
-
-	// adapters and external services
+	wordsUseCase := injectWord()
+	authUsecase := injectAuth(pgConn, conf.Token.PASETOSecret, time.Hour)
+	gameUsecase := injectGame(pgConn, wordsUseCase.RandomWordHandler, gameSocket)
 	gameSocket.Fgh = gameUsecase.Queries.FindGameQueryHandler
+
 	router := mux.NewRouter()
 
 	registerApi(router, gameUsecase, authUsecase)
