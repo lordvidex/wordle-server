@@ -57,11 +57,11 @@ func HandleError(next http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				var wordErr Error
-				switch err.(type) {
+				switch err := err.(type) {
 				case error:
-					wordErr = InternalServerError(err.(error).Error())
+					wordErr = InternalServerError(err.Error())
 				case string:
-					wordErr = InternalServerError(err.(string))
+					wordErr = InternalServerError(err)
 				default:
 					wordErr = InternalServerError("unknown error occurred")
 				}

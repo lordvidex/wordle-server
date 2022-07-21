@@ -8,8 +8,8 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/words"
 )
 
-// FindByIdRow helps to map row types from pg.FindByIdRow to game.Game
-func FindByIdRow(row *pg.FindByIdRow) *game.Game {
+// FindByIDRow helps to map row types from pg.FindByIDRow to game.Game
+func FindByIDRow(row *pg.FindByIdRow) *game.Game {
 	gm := &game.Game{}
 	gm.ID = row.ID
 	gm.InviteID = row.InviteID

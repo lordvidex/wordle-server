@@ -21,8 +21,8 @@ import (
 
 func connectDB(c *DBConfig) (*pgx.Conn, error) {
 	var dsn string
-	if c.Url != "" {
-		dsn = c.Url
+	if c.URL != "" {
+		dsn = c.URL
 	} else {
 		dsn = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", c.User, c.Password, c.Host, 5432, c.DBName)
 	}
@@ -66,7 +66,7 @@ func Start() {
 
 	router := mux.NewRouter()
 
-	registerApi(router, gameUsecase, authUsecase)
+	registerAPI(router, gameUsecase, authUsecase)
 	registerWS(router, gameSocket)
 	registerAsset(router)
 	printEndpoints(router)
@@ -86,8 +86,8 @@ func routerGroup(parent *mux.Router, path string) *mux.Router {
 	return parent.PathPrefix(path).Subrouter()
 }
 
-// registerApi registers the API endpoints.
-func registerApi(router *mux.Router, gameCases game.UseCases, authCases auth.UseCases) {
+// registerAPI registers the API endpoints.
+func registerAPI(router *mux.Router, gameCases game.UseCases, authCases auth.UseCases) {
 	// middlewares
 	authMiddleware := api.AuthMiddleware(authCases.Queries.GetUserByToken)
 	// main api endpoint

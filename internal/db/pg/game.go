@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
 	"github.com/lordvidex/wordle-wf/internal/words"
 
 	"github.com/google/uuid"
@@ -95,15 +96,18 @@ func (g *gameRepository) UpdateSettings(settings *game.Settings, gameID string) 
 	return err
 }
 
-func (g *gameRepository) FindByID(gameId uuid.UUID) (*game.Game, error) {
-	gameRow, err := g.FindById(g.c, gameId)
+func (g *gameRepository) FindByID(gameID uuid.UUID) (*game.Game, error) {
+	gameRow, err := g.FindById(g.c, gameID)
 	if err != nil {
 		return nil, err
 	}
-	gm := mapper.FindByIdRow(gameRow)
+	gm := mapper.FindByIDRow(gameRow)
 
 	// fetch players in game
 	players, err := g.Queries.GetPlayersResultInGame(g.c, uuid.NullUUID{UUID: gm.ID})
+	if err != nil {
+		return nil, err
+	}
 	gm.Sessions = mapper.GetPlayersResultInGame(players)
 	for _, s := range gm.Sessions {
 		// fetch words in game

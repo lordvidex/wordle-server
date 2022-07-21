@@ -61,14 +61,14 @@ func (w Word) CompareTo(correctWord Word) []LetterStatus {
 	// make a dict of the correct letters
 	dict := make(map[rune]int)
 	for _, v := range correctRunes {
-		dict[v] += 1
+		dict[v]++
 	}
 
 	// first parse the correct letters
 	for i, v := range instanceRunes {
 		if v == correctRunes[i] {
 			wordStatus[i] = Correct
-			dict[v] -= 1
+			dict[v]--
 		}
 	}
 
@@ -80,7 +80,7 @@ func (w Word) CompareTo(correctWord Word) []LetterStatus {
 		if cnt, ok := dict[value]; ok && cnt > 0 {
 			wordStatus[i] = Exists
 
-			dict[value] -= 1
+			dict[value]--
 		}
 	}
 	return wordStatus

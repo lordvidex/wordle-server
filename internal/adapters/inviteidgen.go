@@ -5,13 +5,13 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/game"
 )
 
-type uniUriGenerator struct {
+type uniURIGenerator struct {
 }
 
-func (u *uniUriGenerator) Generate() string {
+func (u *uniURIGenerator) Generate() string {
 	return uniuri.NewLen(6)
 }
 
 func NewUniUriGenerator() game.InviteIDGenerator {
-	return &uniUriGenerator{}
+	return &uniURIGenerator{}
 }

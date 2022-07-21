@@ -37,7 +37,7 @@ type DBConfig struct {
 	User     string `mapstructure:"POSTGRES_USER"`
 	Password string `mapstructure:"POSTGRES_PASSWORD"`
 	DBName   string `mapstructure:"POSTGRES_DB"`
-	Url      string `mapstructure:"POSTGRES_URL"`
+	URL      string `mapstructure:"POSTGRES_URL"`
 }
 
 type TokenConfig struct {

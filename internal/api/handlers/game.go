@@ -24,17 +24,17 @@ func (g *gameRouter) CreateLobbyHandler(w http.ResponseWriter, r *http.Request) 
 	if jsonError != nil {
 		fmt.Printf("%+v\n", jsonError)
 	}
-	lobbyId, err := g.gameCases.Commands.CreateLobbyHandler.Handle(request)
+	lobbyID, err := g.gameCases.Commands.CreateLobbyHandler.Handle(request)
 	if err != nil {
 		api.BadRequest(err.Error()).WriteJSON(w)
 		return
 	}
-	json.NewEncoder(w).Encode(lobbyId)
+	json.NewEncoder(w).Encode(lobbyID)
 }
 
 func (g *gameRouter) GetGameHandler(w http.ResponseWriter, r *http.Request) {
-	gameId := mux.Vars(r)["id"]
-	gameUUID, err := uuid.Parse(gameId)
+	gameID := mux.Vars(r)["id"]
+	gameUUID, err := uuid.Parse(gameID)
 	if err != nil {
 		api.BadRequest(err.Error()).WriteJSON(w)
 	}

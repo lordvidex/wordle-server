@@ -1,6 +1,8 @@
 package adapters
 
 import (
+	// embed here helps to embed the words in the resources folder
+	// into fileContent
 	_ "embed"
 	"github.com/lordvidex/wordle-wf/internal/words"
 	"math/rand"
