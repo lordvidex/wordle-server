@@ -3,12 +3,16 @@ on: [push, pull_request]
 jobs: 
   test:
     name: running project tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
-      matrix: 
-        go_version: ["1.18.3"]
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        go: [1.12, 1.13, 1.14] 
     steps:
       - uses: actions/checkout@v3
-      - name: setup golang
+      - name: setup-go ${{ matrix.go }}
         uses: actions/setup-go
+        with:
+          go-version: ${{ matrix.go }}
       - run: go test -v ./...
