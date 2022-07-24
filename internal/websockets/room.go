@@ -1,31 +1,32 @@
 package websockets
 
 import (
-	"fmt"
 	"github.com/lordvidex/wordle-wf/internal/game"
 )
 
 type Room struct {
-	ID        string
-	players   map[*Client]bool
-	broadcast chan interface{}
-	join      chan *Client
-	leave     chan *Client
-	settings  game.Settings
+	ID            string
+	players       map[*Client]bool
+	broadcast     chan interface{}
+	join          chan *Client
+	leave         chan *Client
+	settings      game.Settings
+	hasActiveGame bool
+	owner         string
 }
 
 // NewRoom creates a new room for gamers playing game.Game with Room.ID
 // and initializes all room's channels
 func NewRoom(id string, settings game.Settings) *Room {
-	fmt.Println("room entered")
-	defer fmt.Println("room left")
 	return &Room{
-		ID:        id,
-		players:   make(map[*Client]bool),
-		broadcast: make(chan interface{}),
-		join:      make(chan *Client),
-		leave:     make(chan *Client),
-		settings:  settings,
+		ID:            id,
+		players:       make(map[*Client]bool),
+		broadcast:     make(chan interface{}),
+		join:          make(chan *Client),
+		leave:         make(chan *Client),
+		settings:      settings,
+		hasActiveGame: false,
+		owner:         "",
 	}
 }
 

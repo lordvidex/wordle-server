@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/lordvidex/wordle-wf/internal/api"
 	"github.com/lordvidex/wordle-wf/internal/game"
 )
 
@@ -26,7 +26,7 @@ var (
 
 // others
 var (
-	queryGameID = "id"
+	queryRoomID = "id"
 )
 
 type GameSocket struct {
@@ -56,35 +56,47 @@ func (g *GameSocket) Close() error {
 // ServeHTTP handles websocket requests for GameSocket - JoinGameEvent
 // and connects the user to a game session if correct id is produced
 func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	idList, ok := r.URL.Query()[queryGameID]
+	ctx := r.Context()
+	player := ctx.Value(api.DecodedUserKey).(*game.Player)
+
+	idList, ok := r.URL.Query()[queryRoomID]
 	if !ok || len(idList) < 1 {
-		fmt.Println("error getting game id")
+		fmt.Println("error getting room id")
 		return
 	}
 
-	id := idList[0]              // get the first id
-	_uuid, err := uuid.Parse(id) // convert to UUID
-	if err != nil {
-		fmt.Println("error parsing game id")
+	id := idList[0] // get the first id
+	room := g.rooms[id]
+	canJoinGame := true
+	// check if the room exists
+	if room == nil {
+		api.BadRequest(fmt.Errorf("room with id: %v does not exist", id).Error()).WriteJSON(w)
 		return
+	}
+	// check if the room has an active game
+	if room.hasActiveGame {
+		canJoinGame = false
+		for key := range room.players {
+			if key.playerId == player.ID.String() {
+				canJoinGame = true
+			}
+		}
+	}
+	// set first player as owner
+	if len(room.players) < 1 {
+		room.owner = player.ID.String()
 	}
 
 	// upgrade the connection to a websocket
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println("error upgrading to websockets", err)
-		return
-	}
-	room, ok := g.rooms[id]
-	if !ok {
-		// check if such a gm exists
-		gm, err := g.Fgh.Handle(game.FindGameQuery{ID: _uuid})
+	if canJoinGame {
+		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			fmt.Println("error finding game", err)
+			fmt.Println("error upgrading to websockets", err)
 			return
 		}
-		// create new room
-		g.rooms[id] = NewRoom(id, gm.Settings)
+		room.join <- NewClient(room, conn, player.ID.String())
+	} else {
+		// throw a forbidden exception
+		api.Forbidden(fmt.Errorf("cannot join lobby").Error()).WriteJSON(w)
 	}
-	room.join <- NewClient(room, conn)
 }
