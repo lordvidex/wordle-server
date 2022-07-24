@@ -11,6 +11,11 @@ type CreateLobbyRequestDto struct {
 	ViewOpponentsSessions bool      `json:"canViewOpponentsSessions"`
 }
 
+type CreateLobbyResponseDto struct {
+	LobbyID string `json:"lobbyId"`
+	Message string `json:"message"`
+}
+
 type CreateLobbyHandler interface {
 	Handle(lobby CreateLobbyRequestDto) (string, error)
 }
