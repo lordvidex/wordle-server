@@ -17,6 +17,7 @@ import (
 	"github.com/lordvidex/wordle-wf/internal/api"
 	"github.com/lordvidex/wordle-wf/internal/game"
 	"github.com/lordvidex/wordle-wf/internal/websockets"
+	"github.com/sirupsen/logrus"
 )
 
 func connectDB(c *DBConfig) (*pgx.Conn, error) {
@@ -80,8 +81,7 @@ func registerAsset(router *mux.Router) {
 
 func registerWS(router *mux.Router, ws http.Handler, authCases auth.UseCases) {
 	authMiddleware := api.AuthMiddleware(authCases.Queries.GetUserByToken)
-	router.Use(authMiddleware)
-	router.Handle("/live", ws)
+	router.Path("/live").Handler(authMiddleware(ws))
 }
 
 func routerGroup(parent *mux.Router, path string) *mux.Router {
@@ -125,7 +125,9 @@ func printEndpoints(r *mux.Router) {
 		if err != nil {
 			return nil
 		}
-		fmt.Printf("%v %s\n", methods, path)
+		logrus.WithFields(logrus.Fields{
+			"methods": methods,
+		}).Info(path)
 		return nil
 	}); err != nil {
 		log.Fatal(err)
