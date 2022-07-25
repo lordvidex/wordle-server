@@ -105,7 +105,7 @@ func registerApi(router *mux.Router, gameCases game.UseCases, authCases auth.Use
 	grh := handlers.NewGameHandler(gameCases)
 	gameRouter.HandleFunc("/lobby", grh.CreateLobbyHandler).Methods("POST")
 	// TODO(@Israel) - id will be string because of UUID and there will be route clash between this and /lobby
-	gameRouter.HandleFunc("/{id: [0-9]+}", grh.GetGameHandler).Methods("GET")
+	gameRouter.HandleFunc("/{id: [A-Za-z0-9]+}", grh.GetGameHandler).Methods("GET")
 
 	// auth endpoints
 	authRouter := routerGroup(apiRouter, "/auth")
