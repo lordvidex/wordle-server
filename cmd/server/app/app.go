@@ -92,6 +92,7 @@ func routerGroup(parent *mux.Router, path string) *mux.Router {
 func registerApi(router *mux.Router, gameCases game.UseCases, authCases auth.UseCases) {
 	// middlewares
 	authMiddleware := api.AuthMiddleware(authCases.Queries.GetUserByToken)
+
 	// main api endpoint
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.Use(
@@ -104,7 +105,6 @@ func registerApi(router *mux.Router, gameCases game.UseCases, authCases auth.Use
 	gameRouter.Use(authMiddleware)
 	grh := handlers.NewGameHandler(gameCases)
 	gameRouter.HandleFunc("/lobby", grh.CreateLobbyHandler).Methods("POST")
-	// TODO(@Israel) - id will be string because of UUID and there will be route clash between this and /lobby
 	gameRouter.HandleFunc("/{id}", grh.GetGameHandler).Methods("GET")
 
 	// auth endpoints

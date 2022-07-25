@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/lordvidex/wordle-wf/internal/api"
 	"github.com/lordvidex/wordle-wf/internal/game"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type GameResponse struct {
@@ -26,11 +26,10 @@ type GameResponse struct {
 
 type gameRouter struct {
 	gameCases game.UseCases
-	logger    *log.Logger
 }
 
 func NewGameHandler(gameCases game.UseCases) *gameRouter {
-	return &gameRouter{gameCases, log.New()}
+	return &gameRouter{gameCases}
 }
 func (g *gameRouter) CreateLobbyHandler(w http.ResponseWriter, r *http.Request) {
 	request := game.CreateLobbyRequestDto{}
@@ -59,7 +58,7 @@ func (g *gameRouter) GetGameHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		api.BadRequest(fmt.Sprintf("an error occured finding game with id %s", gameUUID)).WriteJSON(w)
-		log.WithFields(log.Fields{"error": err.Error()}).Error("error finding game")
+		logrus.WithFields(logrus.Fields{"error": err.Error()}).Error("error finding game")
 		return
 	}
 	response := &GameResponse{
