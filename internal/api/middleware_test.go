@@ -49,7 +49,14 @@ func TestAuthMiddleware(t *testing.T) {
 			recorder := httptest.NewRecorder()
 			middleware := AuthMiddleware(auth.NewUserTokenDecoder(tokenAdapter))
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				fmt.Println("Test handler receives: ", r.Context().Value(DecodedUserKey))
+				val := r.Context().Value(DecodedUserKey)
+				if val == nil {
+					t.Errorf("expected user to be set in context")
+				}
+				_, ok := val.(*game.Player)
+				if !ok {
+					t.Errorf("user not decoded as game.Player")
+				}
 				w.WriteHeader(http.StatusOK)
 				_, _ = w.Write([]byte("Authenticated"))
 			})
@@ -64,15 +71,6 @@ func TestAuthMiddleware(t *testing.T) {
 					t.Errorf("expected status code to be 400...500, got %d", recorder.Code)
 				}
 				fmt.Println("TEST Passed with payload", recorder.Body.String())
-			} else {
-				val := r.Context().Value(DecodedUserKey)
-				if val == nil {
-					t.Errorf("expected user to be set in context")
-				}
-				_, ok := val.(*game.Player)
-				if !ok {
-					t.Errorf("user not decoded as game.Player")
-				}
 			}
 		})
 	}
