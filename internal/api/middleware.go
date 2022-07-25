@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 	"errors"
-	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 
@@ -48,7 +48,11 @@ func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		recorder := responseStatusRecorder{ResponseWriter: w, Status: http.StatusOK}
 		next.ServeHTTP(&recorder, r)
-		fmt.Printf("RESPONSE [%s] %d %s\n", r.Method, recorder.Status, r.URL.Path)
+		log.WithFields(log.Fields{
+			"method": r.Method,
+			"path":   r.URL.Path,
+			"status": recorder.Status,
+		}).Info("RESPONSE")
 	})
 }
 
