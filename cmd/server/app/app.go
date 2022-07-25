@@ -56,7 +56,7 @@ func Start() {
 	// services and dependencies
 	gameSocket := websockets.NewGameSocket(nil)
 	defer func() {
-		if err := gameSocket.Close(); err != nil {
+		if err = gameSocket.Close(); err != nil {
 			log.Println("error closing websocket", err)
 		}
 	}()
@@ -67,10 +67,10 @@ func Start() {
 
 	router := mux.NewRouter()
 
-	registerApi(router, gameUsecase, authUsecase)
-	registerWS(router, gameSocket, authUsecase)
+	registerAPIEndpoints(router, gameUsecase, authUsecase)
+	registerWebSocketHandler(router, gameSocket, authUsecase)
 	registerAsset(router)
-	printEndpoints(router)
+	printAPIEndpoints(router)
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
@@ -79,7 +79,7 @@ func registerAsset(router *mux.Router) {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./resources")))
 }
 
-func registerWS(router *mux.Router, ws http.Handler, authCases auth.UseCases) {
+func registerWebSocketHandler(router *mux.Router, ws http.Handler, authCases auth.UseCases) {
 	authMiddleware := api.AuthMiddleware(authCases.Queries.GetUserByToken)
 	router.Path("/live").Handler(authMiddleware(ws))
 }
@@ -88,8 +88,7 @@ func routerGroup(parent *mux.Router, path string) *mux.Router {
 	return parent.PathPrefix(path).Subrouter()
 }
 
-// registerApi registers the API endpoints.
-func registerApi(router *mux.Router, gameCases game.UseCases, authCases auth.UseCases) {
+func registerAPIEndpoints(router *mux.Router, gameCases game.UseCases, authCases auth.UseCases) {
 	// middlewares
 	authMiddleware := api.AuthMiddleware(authCases.Queries.GetUserByToken)
 
@@ -114,8 +113,7 @@ func registerApi(router *mux.Router, gameCases game.UseCases, authCases auth.Use
 	authRouter.HandleFunc("/login", ah.LoginHandler).Methods("POST")
 }
 
-// printEndpoints prints the endpoints that are exposed for api consumption
-func printEndpoints(r *mux.Router) {
+func printAPIEndpoints(r *mux.Router) {
 	if err := r.Walk(func(route *mux.Route, _ *mux.Router, _ []*mux.Route) error {
 		path, err := route.GetPathTemplate()
 		if err != nil {
