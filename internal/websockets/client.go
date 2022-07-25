@@ -9,19 +9,19 @@ type Client struct {
 	conn     *websocket.Conn
 	send     chan interface{}
 	room     *Room
-	playerId string
+	playerID string
 }
 
 // NewClient creates a new websocket client
 // and adds him to the room by sending him to the room's join channel
 //
-func NewClient(room *Room, conn *websocket.Conn, playerId string) *Client {
+func NewClient(room *Room, conn *websocket.Conn, playerID string) *Client {
 	// create client
 	cl := &Client{
 		send:     make(chan interface{}),
 		room:     room,
 		conn:     conn,
-		playerId: playerId,
+		playerID: playerID,
 	}
 	// start reading from the client and writing to the client
 	go cl.ReadLoop()

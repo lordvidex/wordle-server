@@ -12,7 +12,7 @@ type CreateLobbyRequestDto struct {
 }
 
 type CreateLobbyResponseDto struct {
-	LobbyID string `json:"lobbyId"`
+	LobbyID string `json:"lobby_id"`
 	Message string `json:"message"`
 }
 

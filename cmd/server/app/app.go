@@ -67,7 +67,7 @@ func Start() {
 	router := mux.NewRouter()
 
 	registerApi(router, gameUsecase, authUsecase)
-	registerWS(router, gameSocket)
+	registerWS(router, gameSocket, authUsecase)
 	registerAsset(router)
 	printEndpoints(router)
 
@@ -78,7 +78,9 @@ func registerAsset(router *mux.Router) {
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./resources")))
 }
 
-func registerWS(router *mux.Router, ws http.Handler) {
+func registerWS(router *mux.Router, ws http.Handler, authCases auth.UseCases) {
+	authMiddleware := api.AuthMiddleware(authCases.Queries.GetUserByToken)
+	router.Use(authMiddleware)
 	router.Handle("/live", ws)
 }
 

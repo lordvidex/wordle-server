@@ -77,7 +77,7 @@ func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if room.hasActiveGame {
 		canJoinGame = false
 		for key := range room.players {
-			if key.playerId == player.ID.String() {
+			if key.playerID == player.ID.String() {
 				canJoinGame = true
 			}
 		}

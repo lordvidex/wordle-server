@@ -29,7 +29,8 @@ func (g *gameRouter) CreateLobbyHandler(w http.ResponseWriter, r *http.Request) 
 		api.BadRequest(err.Error()).WriteJSON(w)
 		return
 	}
-	json.NewEncoder(w).Encode(&game.CreateLobbyResponseDto{LobbyID: lobbyId, Message: "Lobby created successfully"})
+	response := &game.CreateLobbyResponseDto{LobbyID: lobbyId, Message: "Lobby created successfully"}
+	json.NewEncoder(w).Encode(response)
 }
 
 func (g *gameRouter) GetGameHandler(w http.ResponseWriter, r *http.Request) {

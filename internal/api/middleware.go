@@ -103,7 +103,8 @@ func AuthMiddleware(tokenDecoder auth.GetUserByTokenQueryHandler) func(next http
 				return
 			}
 			ctx := context.WithValue(r.Context(), DecodedUserKey, player)
-			next.ServeHTTP(w, r.WithContext(ctx))
+			*r = *r.WithContext(ctx)
+			next.ServeHTTP(w, r)
 		})
 	}
 }
