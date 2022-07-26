@@ -54,7 +54,7 @@ func Start() {
 	}()
 
 	// services and dependencies
-	gameSocket := websockets.NewGameSocket(nil)
+	gameSocket := websockets.NewGameSocket()
 	defer func() {
 		if err = gameSocket.Close(); err != nil {
 			log.Println("error closing websocket", err)
@@ -63,7 +63,6 @@ func Start() {
 	wordsUseCase := injectWord()
 	authUsecase := injectAuth(pgConn, conf.Token.PASETOSecret, time.Hour)
 	gameUsecase := injectGame(pgConn, wordsUseCase.RandomWordHandler, gameSocket)
-	gameSocket.Fgh = gameUsecase.Queries.FindGameQueryHandler
 
 	router := mux.NewRouter()
 

@@ -35,7 +35,6 @@ var (
 
 type GameSocket struct {
 	rooms map[string]*Room
-	Fgh   game.FindGameByIDQueryHandler
 }
 
 func (g *GameSocket) CreateLobby(settings *game.Settings, id string) (string, error) {
@@ -43,12 +42,8 @@ func (g *GameSocket) CreateLobby(settings *game.Settings, id string) (string, er
 	return id, nil
 }
 
-func (g *GameSocket) JoinLobby(lobbyID string, player *game.Player) {
-
-}
-
-func NewGameSocket(fgh game.FindGameByIDQueryHandler) *GameSocket {
-	sock := &GameSocket{make(map[string]*Room), fgh}
+func NewGameSocket() *GameSocket {
+	sock := &GameSocket{make(map[string]*Room)}
 	return sock
 }
 
@@ -87,6 +82,15 @@ func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get player name
+	var playerName string
+	nameList, ok := query[queryPlayerName]
+	if !ok || len(nameList) < 1 {
+		playerName = player.Name
+	} else {
+		playerName = nameList[0]
+	}
+
 	// check if the room exists
 	room, exists := g.rooms[id]
 	if !exists {
@@ -106,11 +110,6 @@ func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// set first player as owner
-	if len(room.players) < 1 {
-		room.owner = player.ID.String()
-	}
-
 	// upgrade the connection to a websocket
 	if shouldJoinGame {
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -118,7 +117,7 @@ func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("error upgrading to websockets", err)
 			return
 		}
-		room.join <- NewClient(room, conn, player.ID.String())
+		room.join <- NewClient(room, conn, player.ID.String(), playerName)
 	} else {
 		// throw a forbidden exception
 		w.WriteHeader(http.StatusForbidden)

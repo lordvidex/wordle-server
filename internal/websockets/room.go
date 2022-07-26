@@ -2,6 +2,7 @@ package websockets
 
 import (
 	"github.com/lordvidex/wordle-wf/internal/game"
+	"sync"
 )
 
 type Room struct {
@@ -13,6 +14,7 @@ type Room struct {
 	settings      game.Settings
 	hasActiveGame bool
 	owner         string
+	mu            sync.Mutex
 }
 
 // NewRoom creates a new room for gamers playing game.Game with Room.ID
@@ -42,14 +44,36 @@ func (r *Room) Close() error {
 	return err
 }
 
+func (r *Room) checkAssignOwner() {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for player := range r.players {
+		// owner exists
+		if r.owner == player.playerID {
+			return
+		}
+	}
+	// no owner exists, assign one
+	for player := range r.players {
+		r.owner = player.playerID
+		r.broadcast <- OwnerAssignedPayload(player.playerID, player.playerName)
+		break
+	}
+}
+
 func (r *Room) Run() {
 	for {
 		select {
 		// a client joined the room
 		case client := <-r.join:
 			r.players[client] = true
+			r.checkAssignOwner()
 			r.broadcast <- &WSPayload{
-				// Event: game.EventPlayerJoined,
+				Event: EventPlayerJoined,
+				Data: map[string]string{
+					"player_id":   client.playerID,
+					"player_name": client.playerName,
+				},
 			}
 
 		// a client left the room
