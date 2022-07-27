@@ -34,16 +34,17 @@ var (
 )
 
 type GameSocket struct {
-	rooms map[string]*Room
+	rooms             map[string]*Room
+	CreateGameHandler game.CreateGameHandler
 }
 
 func (g *GameSocket) CreateLobby(settings *game.Settings, id string) (string, error) {
-	g.rooms[id] = NewRoom(id, *settings)
+	g.rooms[id] = NewRoom(id, *settings, g.CreateGameHandler)
 	return id, nil
 }
 
-func NewGameSocket() *GameSocket {
-	sock := &GameSocket{make(map[string]*Room)}
+func NewGameSocket(createGameHandler game.CreateGameHandler) *GameSocket {
+	sock := &GameSocket{make(map[string]*Room), createGameHandler}
 	return sock
 }
 
@@ -95,13 +96,13 @@ func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	room, exists := g.rooms[id]
 	if !exists {
 		w.WriteHeader(http.StatusNotFound)
-		api.NotFound(fmt.Errorf("room with id: %v does not exist", id).Error()).WriteJSON(w)
+		api.NotFound(ErrRoomNotFound.Error()).WriteJSON(w)
 		return
 	}
 
 	// check if the room has an active game
 	shouldJoinGame := true
-	if room.hasActiveGame {
+	if room.HasActiveGame() {
 		shouldJoinGame = false
 		for key := range room.players {
 			if key.playerID == player.ID.String() {

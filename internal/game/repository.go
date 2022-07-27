@@ -21,7 +21,7 @@ func (nullInt64 *NullInt64) MarshalJSON() ([]byte, error) {
 
 func (nullInt64 *NullInt64) UnmarshalJSON(b []byte) error {
 	err := json.Unmarshal(b, &nullInt64.Int64)
-	nullInt64.Valid = (err == nil && nullInt64.Int64 > 0)
+	nullInt64.Valid = err == nil && nullInt64.Int64 > 0
 	return err
 }
 

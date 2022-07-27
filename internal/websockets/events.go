@@ -7,12 +7,14 @@ import "github.com/lordvidex/wordle-wf/internal/game"
 type Event string
 
 const (
-	EventPlayerJoined  Event = "PlayerJoined"
-	EventPlayerLeft    Event = "PlayerLeft"
-	EventOwnerAssigned Event = "OwnerAssigned"
-	EventGameStarted   Event = "GameStarted"
-	EventGameEnded     Event = "GameEnded"
-	EventPlayerGuessed Event = "PlayerGuessed"
+	EventPlayerJoined    Event = "PlayerJoined"
+	EventPlayerLeft      Event = "PlayerLeft"
+	EventOwnerAssigned   Event = "OwnerAssigned"
+	EventGameStarted     Event = "GameStarted"
+	EventGameStartFailed Event = "GameStartFailed"
+	EventGameEnded       Event = "GameEnded"
+	EventPlayerGuessed   Event = "PlayerGuessed"
+	//EventRoomData        Event = "RoomData"
 )
 
 func OwnerAssignedPayload(playerID string, playerName string) *WSPayload {
@@ -21,6 +23,15 @@ func OwnerAssignedPayload(playerID string, playerName string) *WSPayload {
 		Data: map[string]string{
 			"player_id":   playerID,
 			"player_name": playerName,
+		},
+	}
+}
+
+func StartGameFailedPayload(err error) *WSPayload {
+	return &WSPayload{
+		Event: EventGameStartFailed,
+		Data: map[string]string{
+			"error": err.Error(),
 		},
 	}
 }

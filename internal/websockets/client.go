@@ -2,6 +2,7 @@ package websockets
 
 import (
 	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
 )
 
 // Client is a websocket client and channel for game events
@@ -58,9 +59,18 @@ func (c *Client) WriteLoop() {
 		_ = c.Close()
 	}()
 	for msg := range c.send {
-		err := c.conn.WriteJSON(msg)
+		var err error
+		switch msg.(type) {
+		case []byte:
+			err = c.conn.WriteMessage(websocket.TextMessage, msg.([]byte))
+		default:
+			err = c.conn.WriteJSON(msg)
+		}
 		if err != nil {
-			return
+			logrus.WithFields(logrus.Fields{
+				"source": "websockets client.go",
+				"func":   "WriteLoop",
+			}).Error(err)
 		}
 	}
 }
