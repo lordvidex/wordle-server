@@ -1,31 +1,34 @@
 package websockets
 
 import (
-	"fmt"
 	"github.com/lordvidex/wordle-wf/internal/game"
+	"sync"
 )
 
 type Room struct {
-	ID        string
-	players   map[*Client]bool
-	broadcast chan interface{}
-	join      chan *Client
-	leave     chan *Client
-	settings  game.Settings
+	ID            string
+	players       map[*Client]bool
+	broadcast     chan interface{}
+	join          chan *Client
+	leave         chan *Client
+	settings      game.Settings
+	hasActiveGame bool
+	owner         string
+	mu            sync.Mutex
 }
 
 // NewRoom creates a new room for gamers playing game.Game with Room.ID
 // and initializes all room's channels
 func NewRoom(id string, settings game.Settings) *Room {
-	fmt.Println("room entered")
-	defer fmt.Println("room left")
 	return &Room{
-		ID:        id,
-		players:   make(map[*Client]bool),
-		broadcast: make(chan interface{}),
-		join:      make(chan *Client),
-		leave:     make(chan *Client),
-		settings:  settings,
+		ID:            id,
+		players:       make(map[*Client]bool),
+		broadcast:     make(chan interface{}),
+		join:          make(chan *Client),
+		leave:         make(chan *Client),
+		settings:      settings,
+		hasActiveGame: false,
+		owner:         "",
 	}
 }
 
@@ -41,14 +44,36 @@ func (r *Room) Close() error {
 	return err
 }
 
+func (r *Room) checkAssignOwner() {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for player := range r.players {
+		// owner exists
+		if r.owner == player.playerID {
+			return
+		}
+	}
+	// no owner exists, assign one
+	for player := range r.players {
+		r.owner = player.playerID
+		r.broadcast <- OwnerAssignedPayload(player.playerID, player.playerName)
+		break
+	}
+}
+
 func (r *Room) Run() {
 	for {
 		select {
 		// a client joined the room
 		case client := <-r.join:
 			r.players[client] = true
+			r.checkAssignOwner()
 			r.broadcast <- &WSPayload{
-				// Event: game.EventPlayerJoined,
+				Event: EventPlayerJoined,
+				Data: map[string]string{
+					"player_id":   client.playerID,
+					"player_name": client.playerName,
+				},
 			}
 
 		// a client left the room

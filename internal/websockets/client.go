@@ -1,23 +1,29 @@
 package websockets
 
-import "github.com/gorilla/websocket"
+import (
+	"github.com/gorilla/websocket"
+)
 
 // Client is a websocket client and channel for game events
 type Client struct {
-	conn *websocket.Conn
-	send chan interface{}
-	room *Room
+	conn       *websocket.Conn
+	send       chan interface{}
+	room       *Room
+	playerID   string
+	playerName string
 }
 
 // NewClient creates a new websocket client
 // and adds him to the room by sending him to the room's join channel
 //
-func NewClient(room *Room, conn *websocket.Conn) *Client {
+func NewClient(room *Room, conn *websocket.Conn, playerID string, playerName string) *Client {
 	// create client
 	cl := &Client{
-		send: make(chan interface{}),
-		room: room,
-		conn: conn,
+		send:       make(chan interface{}),
+		room:       room,
+		conn:       conn,
+		playerID:   playerID,
+		playerName: playerName,
 	}
 	// start reading from the client and writing to the client
 	go cl.ReadLoop()

@@ -37,6 +37,10 @@ func Unauthorized(message string) Error {
 	return Error{http.StatusUnauthorized, message}
 }
 
+func Forbidden(message string) Error {
+	return Error{http.StatusForbidden, message}
+}
+
 // InternalServerError is a convenient function for returning a 500 error with a message
 // can be converted to werr.Error() if a thrown error is the cause
 func InternalServerError(message string) Error {

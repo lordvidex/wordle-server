@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/lordvidex/wordle-wf/internal/api"
 	"github.com/lordvidex/wordle-wf/internal/game"
 )
 
@@ -21,17 +21,20 @@ var (
 )
 
 var (
-	ErrRoomNotFound = errors.New("game room not found")
+	ErrRoomNotFound       = errors.New("game room not found")
+	ErrPlayerNotInRequest = errors.New("player not found in request")
+	ErrRoomNotInRequest   = errors.New("room id not in request")
+	ErrCannotJoinLobby    = errors.New("cannot join lobby")
 )
 
 // others
 var (
-	queryGameID = "id"
+	queryRoomID     = "room_id"
+	queryPlayerName = "player_name"
 )
 
 type GameSocket struct {
 	rooms map[string]*Room
-	Fgh   game.FindGameByIDQueryHandler
 }
 
 func (g *GameSocket) CreateLobby(settings *game.Settings, id string) (string, error) {
@@ -39,8 +42,8 @@ func (g *GameSocket) CreateLobby(settings *game.Settings, id string) (string, er
 	return id, nil
 }
 
-func NewGameSocket(fgh game.FindGameByIDQueryHandler) *GameSocket {
-	sock := &GameSocket{make(map[string]*Room), fgh}
+func NewGameSocket() *GameSocket {
+	sock := &GameSocket{make(map[string]*Room)}
 	return sock
 }
 
@@ -56,35 +59,68 @@ func (g *GameSocket) Close() error {
 // ServeHTTP handles websocket requests for GameSocket - JoinGameEvent
 // and connects the user to a game session if correct id is produced
 func (g *GameSocket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	idList, ok := r.URL.Query()[queryGameID]
-	if !ok || len(idList) < 1 {
-		fmt.Println("error getting game id")
+	ctx := r.Context()
+	query := r.URL.Query()
+	player, ok := ctx.Value(api.DecodedUserKey).(*game.Player)
+	if !ok {
+		w.WriteHeader(http.StatusUnauthorized)
+		api.Unauthorized(ErrPlayerNotInRequest.Error()).WriteJSON(w)
 		return
 	}
 
-	id := idList[0]              // get the first id
-	_uuid, err := uuid.Parse(id) // convert to UUID
-	if err != nil {
-		fmt.Println("error parsing game id")
+	idList, ok := query[queryRoomID]
+	if !ok || len(idList) < 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		api.BadRequest(ErrRoomNotInRequest.Error()).WriteJSON(w)
 		return
+	}
+
+	id := idList[0] // get the first id
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		api.BadRequest(ErrRoomNotInRequest.Error()).WriteJSON(w)
+		return
+	}
+
+	// get player name
+	var playerName string
+	nameList, ok := query[queryPlayerName]
+	if !ok || len(nameList) < 1 {
+		playerName = player.Name
+	} else {
+		playerName = nameList[0]
+	}
+
+	// check if the room exists
+	room, exists := g.rooms[id]
+	if !exists {
+		w.WriteHeader(http.StatusNotFound)
+		api.NotFound(fmt.Errorf("room with id: %v does not exist", id).Error()).WriteJSON(w)
+		return
+	}
+
+	// check if the room has an active game
+	shouldJoinGame := true
+	if room.hasActiveGame {
+		shouldJoinGame = false
+		for key := range room.players {
+			if key.playerID == player.ID.String() {
+				shouldJoinGame = true
+			}
+		}
 	}
 
 	// upgrade the connection to a websocket
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println("error upgrading to websockets", err)
-		return
-	}
-	room, ok := g.rooms[id]
-	if !ok {
-		// check if such a gm exists
-		gm, err := g.Fgh.Handle(game.FindGameQuery{ID: _uuid})
+	if shouldJoinGame {
+		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			fmt.Println("error finding game", err)
+			fmt.Println("error upgrading to websockets", err)
 			return
 		}
-		// create new room
-		g.rooms[id] = NewRoom(id, gm.Settings)
+		room.join <- NewClient(room, conn, player.ID.String(), playerName)
+	} else {
+		// throw a forbidden exception
+		w.WriteHeader(http.StatusForbidden)
+		api.Forbidden(ErrCannotJoinLobby.Error()).WriteJSON(w)
 	}
-	room.join <- NewClient(room, conn)
 }
