@@ -11,7 +11,8 @@ import (
 type LetterStatus int
 
 const (
-	Incorrect LetterStatus = iota - 1
+	Unknown LetterStatus = iota
+	Incorrect
 	Exists
 	Correct
 )
@@ -30,13 +31,18 @@ const (
 type Word struct {
 	Word     string
 	PlayedAt sql.NullTime
+	Stats    []LetterStatus
 }
 
 func New(word string) Word {
-	return Word{word, sql.NullTime{}}
+	stats := make([]LetterStatus, len(word))
+	for i := range word {
+		stats[i] = Unknown
+	}
+	return Word{word, sql.NullTime{}, stats}
 }
 
-func (w Word) Runes() []rune {
+func (w *Word) Runes() []rune {
 	return []rune(w.Word)
 }
 
@@ -44,7 +50,7 @@ func (w Word) Runes() []rune {
 // and returns LetterStatus of each letter of Word accordingly
 // Space Complexity: O(n)
 // Time Complexity: O(n)
-func (w Word) CompareTo(correctWord Word) []LetterStatus {
+func (w *Word) CompareTo(correctWord Word) []LetterStatus {
 	correctRunes := correctWord.Runes()
 	instanceRunes := w.Runes()
 
@@ -83,9 +89,10 @@ func (w Word) CompareTo(correctWord Word) []LetterStatus {
 			dict[value] -= 1
 		}
 	}
+	w.Stats = wordStatus
 	return wordStatus
 }
 
-func (w Word) String() string {
+func (w *Word) String() string {
 	return w.Word
 }

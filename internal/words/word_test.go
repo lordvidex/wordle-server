@@ -11,9 +11,10 @@ func TestLetterStateEnums(t *testing.T) {
 		expected     int
 		errorMessage string
 	}{
-		{Correct, 1, "Correct should be 1"},
-		{Incorrect, -1, "Incorrect should be -1"},
-		{Exists, 0, "Exists should be 0"},
+		{Correct, 3, "Correct should be 1"},
+		{Incorrect, 1, "Incorrect should be -1"},
+		{Exists, 2, "Exists should be 0"},
+		{Unknown, 0, "Unknown should be 0"},
 	}
 
 	for _, tt := range testCases {

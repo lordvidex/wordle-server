@@ -1,4 +1,4 @@
-package app
+package local
 
 import (
 	"fmt"
@@ -7,11 +7,17 @@ import (
 	"log"
 )
 
-type decorator string 
+type decorator string
+
 const (
-	bold decorator = "\u001b[1m"
+	bold  decorator = "\u001b[1m"
 	reset decorator = "\u001b[0m"
 )
+
+func (d decorator) Decorate(text string) string {
+	return string(d) + text + string(reset)
+}
+
 type color string
 
 const (
@@ -21,9 +27,8 @@ const (
 	colorYellow color = "\033[33m"
 )
 
-// bold makes the color bolder
-func (c color) bold() string {
-	return string(bold) + string(c)
+func (c color) Colored(text string) string {
+	return string(c) + text + string(colorReset)
 }
 
 func colorForStatus(status words.LetterStatus) color {
@@ -62,24 +67,24 @@ func Start() {
 	session := NewSession(numberOfTries, wordsGenerator)
 	// start the game loop
 	for !session.HasEnded() {
-		fmt.Printf("Number of tries used: %d/%d\n", len(session.playedWords), session.maxTries)
+		fmt.Printf("Number of tries used: %d/%d\n", len(session.PlayedWords), session.MaxTries)
 		fmt.Println("Enter a word:")
 		var word string
 		_, err := fmt.Scanln(&word)
 		if err != nil {
 			log.Fatal("Invalid word", err)
 		}
-		session.playedWords = append(session.playedWords, words.New(word))
+		session.PlayedWords = append(session.PlayedWords, words.New(word))
 		if session.IsWon() {
 			fmt.Println("You won !")
-			fmt.Println(colorForStatus(words.Correct).bold(), session.correctWord, colorReset, reset)
+			fmt.Println(bold.Decorate(colorForStatus(words.Correct).Colored(session.correctWord.String())))
 			break
 		} else {
 			fmt.Println("almost there !")
-			lastWord := session.playedWords[len(session.playedWords)-1]
-			status := lastWord.CompareTo(session.correctWord)
+			lastWord := session.PlayedWords[len(session.PlayedWords)-1]
+			status := session.WordStatus(lastWord)
 			for i, score := range status {
-				fmt.Print(colorForStatus(score).bold(), string(lastWord.Word[i]), colorReset, reset)
+				fmt.Print(bold.Decorate(colorForStatus(score).Colored(string(lastWord.Word[i]))))
 			}
 			fmt.Print("\n")
 		}
@@ -87,7 +92,7 @@ func Start() {
 	if session.IsWon() {
 		fmt.Println("Nice job breaking our code and guessing the word !")
 	} else {
-		fmt.Println("You tried your best !, the word is ", bold, colorGreen, session.correctWord, colorReset, reset)
+		fmt.Println("You tried your best !, the word is ", bold.Decorate(colorGreen.Colored(session.correctWord.String())))
 	}
 	fmt.Println("Would you like to play again? y(Y)/n(N)")
 	var input string
@@ -102,25 +107,29 @@ func Start() {
 }
 
 type Session struct {
-	maxTries    int
-	playedWords []words.Word
+	MaxTries    int
+	PlayedWords []words.Word
 	correctWord words.Word
 }
 
 func NewSession(maxTries int, generator words.RandomHandler) *Session {
 	return &Session{
-		maxTries:    maxTries,
+		MaxTries:    maxTries,
 		correctWord: generator.GetRandomWord(5),
 	}
 }
 
+func (s *Session) WordStatus(word words.Word) []words.LetterStatus {
+	return word.CompareTo(s.correctWord)
+}
+
 func (s *Session) IsWon() bool {
-	if len(s.playedWords) == 0 {
+	if len(s.PlayedWords) == 0 {
 		return false
 	}
-	return s.correctWord == s.playedWords[len(s.playedWords)-1]
+	return s.correctWord.String() == s.PlayedWords[len(s.PlayedWords)-1].String()
 }
 
 func (s *Session) HasEnded() bool {
-	return s.IsWon() || len(s.playedWords) == s.maxTries
+	return s.IsWon() || len(s.PlayedWords) == s.MaxTries
 }

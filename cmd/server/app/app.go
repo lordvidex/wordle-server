@@ -63,7 +63,7 @@ func Start() {
 	wordsUseCase := injectWord()
 	authUsecase := injectAuth(pgConn, conf.Token.PASETOSecret, time.Hour)
 	gameUsecase := injectGame(pgConn, wordsUseCase.RandomWordHandler, gameSocket)
-	gameSocket.
+	gameSocket.CreateGameHandler = gameUsecase.Commands.CreateGameHandler
 	router := mux.NewRouter()
 
 	registerAPIEndpoints(router, gameUsecase, authUsecase)

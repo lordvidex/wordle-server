@@ -13,7 +13,7 @@ const (
 )
 
 type Game struct {
-	// ID is the app specific identifier for a game in the app
+	// ID is the local specific identifier for a game in the local
 	ID uuid.UUID
 
 	// InviteID is the id of the lobby used to play this game
@@ -43,7 +43,7 @@ type Game struct {
 
 func NewGame() *Game {
 	return &Game{
-		ID: uuid.New(),
+		ID:        uuid.New(),
 		StartTime: time.Now(),
 	}
 }
@@ -55,7 +55,6 @@ func NewGame() *Game {
 func (g *Game) HasEnded() bool {
 	return g.EndTime != nil && g.EndTime.After(g.StartTime.Add(MaxDuration))
 }
-
 
 type Session struct {
 	Player  *Player

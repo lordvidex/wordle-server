@@ -1,4 +1,4 @@
-package app
+package local
 
 import (
 	"github.com/lordvidex/wordle-wf/internal/words"
@@ -12,8 +12,8 @@ func TestSession_IsWon(t *testing.T) {
 		want    bool
 	}{
 		{"no sessions", &Session{}, false},
-		{"no words", &Session{playedWords: []words.Word{}}, false},
-		{"last word is correct", &Session{playedWords: []words.Word{
+		{"no words", &Session{PlayedWords: []words.Word{}}, false},
+		{"last word is correct", &Session{PlayedWords: []words.Word{
 			words.New("a"),
 		},
 			correctWord: words.New("a"),
@@ -40,8 +40,8 @@ func TestNewSessionGeneratesWord(t *testing.T) {
 	if s.correctWord.String() == "" {
 		t.Error("NewSession() did not generate a word")
 	}
-	if s.maxTries != tries {
-		t.Errorf("NewSession() did not set maxTries to %d", tries)
+	if s.MaxTries != tries {
+		t.Errorf("NewSession() did not set MaxTries to %d", tries)
 	}
 }
 
@@ -76,8 +76,8 @@ func TestSession_HasEnded(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Session{
-				maxTries:    tt.fields.maxTries,
-				playedWords: tt.fields.playedWords,
+				MaxTries:    tt.fields.maxTries,
+				PlayedWords: tt.fields.playedWords,
 				correctWord: tt.fields.correctWord,
 			}
 			if got := s.HasEnded(); got != tt.want {
