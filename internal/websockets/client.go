@@ -60,9 +60,9 @@ func (c *Client) WriteLoop() {
 	}()
 	for msg := range c.send {
 		var err error
-		switch msg.(type) {
+		switch msg := msg.(type) {
 		case []byte:
-			err = c.conn.WriteMessage(websocket.TextMessage, msg.([]byte))
+			err = c.conn.WriteMessage(websocket.TextMessage, msg)
 		default:
 			err = c.conn.WriteJSON(msg)
 		}

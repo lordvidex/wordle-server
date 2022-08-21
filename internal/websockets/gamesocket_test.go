@@ -57,7 +57,7 @@ func TestJoinLobby(t *testing.T) {
 		{"room id not found",
 			func() map[string]*Room {
 				rr := make(map[string]*Room)
-				rr["test"] = NewRoom("test", game.Settings{})
+				rr["test"] = NewRoom("test", game.Settings{}, nil)
 				return rr
 			}(),
 			func(r *http.Request, t *testing.T) {
