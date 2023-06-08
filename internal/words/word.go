@@ -5,16 +5,13 @@ import (
 )
 
 // LetterStatus is an enum type for the Status of a letter in a word guess
-// -1 stands for Incorrect
-// 0 stands for a letter that is in the wrong position
-// 1 stands for a correct letter in the right position
 type LetterStatus int
 
 const (
-	Unknown LetterStatus = iota
-	Incorrect
-	Exists
-	Correct
+	Unknown   LetterStatus = iota // The letter has not been played
+	Incorrect                     // The letter is not in the word to be guessed
+	Exists                        // The letter is in the word but in the wrong position
+	Correct                       // The letter is in the word and in the correct position
 )
 
 // Word contains a map of letters to their Status
@@ -27,7 +24,6 @@ const (
 // I -> Incorrect
 // R -> Exists
 // D -> Incorrect
-//
 type Word struct {
 	Word     string
 	PlayedAt sql.NullTime
@@ -47,6 +43,7 @@ func (w *Word) Runes() []rune {
 }
 
 // CompareTo compares the word to the correct word
+// sets the LetterStatus of each letter of `w` *Word
 // and returns LetterStatus of each letter of Word accordingly
 // Space Complexity: O(n)
 // Time Complexity: O(n)

@@ -13,7 +13,7 @@ services:
     volumes:
       - .:/local
     depends_on:
-      - migrate
+      - pg-dev
   pg-dev:
     container_name: wordle-pg
     restart: always

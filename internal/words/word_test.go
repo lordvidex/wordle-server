@@ -42,6 +42,7 @@ func TestWord_CompareTo(t *testing.T) {
 		{"ALELE", "EVENT", []LetterStatus{Incorrect, Incorrect, Correct, Incorrect, Exists}, "One correct E and One wrong E"},
 		{"EVENT", "EVENT", []LetterStatus{Correct, Correct, Correct, Correct, Correct}, "Same word"},
 		{"RITES", "SITES", []LetterStatus{Incorrect, Correct, Correct, Correct, Correct}, "Wrong letter first that exists later"},
+		{"WEEEE", "EEEEE", []LetterStatus{Incorrect, Correct, Correct, Correct, Correct}, "All the letters exist but the count is wrong"},
 	}
 	for _, tt := range testCases {
 		t.Run(tt.desc, func(t *testing.T) {
