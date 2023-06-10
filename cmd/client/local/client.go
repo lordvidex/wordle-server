@@ -2,9 +2,11 @@ package local
 
 import (
 	"fmt"
-	"github.com/lordvidex/wordle-wf/internal/adapters"
-	"github.com/lordvidex/wordle-wf/internal/words"
 	"log"
+
+	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/lordvidex/wordle-wf/internal/words"
 )
 
 type decorator string
@@ -60,50 +62,53 @@ func getNumberOfTries() int {
 }
 
 func Start() {
-	numberOfTries := runIntro()
-
-	stringGenerator := adapters.NewLocalStringGenerator()
-	wordsGenerator := words.NewRandomHandler(stringGenerator)
-	session := NewSession(numberOfTries, wordsGenerator)
-	// start the game loop
-	for !session.HasEnded() {
-		fmt.Printf("Number of tries used: %d/%d\n", len(session.PlayedWords), session.MaxTries)
-		fmt.Println("Enter a word:")
-		var word string
-		_, err := fmt.Scanln(&word)
-		if err != nil {
-			log.Fatal("Invalid word", err)
-		}
-		session.PlayedWords = append(session.PlayedWords, words.New(word))
-		if session.IsWon() {
-			fmt.Println("You won !")
-			fmt.Println(bold.Decorate(colorForStatus(words.Correct).Colored(session.correctWord.String())))
-			break
-		} else {
-			fmt.Println("almost there !")
-			lastWord := session.PlayedWords[len(session.PlayedWords)-1]
-			status := session.WordStatus(lastWord)
-			for i, score := range status {
-				fmt.Print(bold.Decorate(colorForStatus(score).Colored(string(lastWord.Word[i]))))
-			}
-			fmt.Print("\n")
-		}
+	if _, err := tea.NewProgram(NewIntroModel(), tea.WithMouseCellMotion()).Run(); err != nil {
+		log.Println("error running the game", err)
 	}
-	if session.IsWon() {
-		fmt.Println("Nice job breaking our code and guessing the word !")
-	} else {
-		fmt.Println("You tried your best !, the word is ", bold.Decorate(colorGreen.Colored(session.correctWord.String())))
-	}
-	fmt.Println("Would you like to play again? y(Y)/n(N)")
-	var input string
-	_, err := fmt.Scanln(&input)
-	for err != nil {
-		fmt.Println("Invalid input, please enter y(Y)/n(N)")
-		_, err = fmt.Scanln(&input)
-	}
-	if input == "y" || input == "Y" {
-		Start()
-	}
+	// numberOfTries := runIntro()
+	//
+	// stringGenerator := adapters.NewLocalStringGenerator()
+	// wordsGenerator := words.NewRandomHandler(stringGenerator)
+	// session := NewSession(numberOfTries, wordsGenerator)
+	// // start the game loop
+	// for !session.HasEnded() {
+	// 	fmt.Printf("Number of tries used: %d/%d\n", len(session.PlayedWords), session.MaxTries)
+	// 	fmt.Println("Enter a word:")
+	// 	var word string
+	// 	_, err := fmt.Scanln(&word)
+	// 	if err != nil {
+	// 		log.Fatal("Invalid word", err)
+	// 	}
+	// 	session.PlayedWords = append(session.PlayedWords, words.New(word))
+	// 	if session.IsWon() {
+	// 		fmt.Println("You won !")
+	// 		fmt.Println(bold.Decorate(colorForStatus(words.Correct).Colored(session.correctWord.String())))
+	// 		break
+	// 	} else {
+	// 		fmt.Println("almost there !")
+	// 		lastWord := session.PlayedWords[len(session.PlayedWords)-1]
+	// 		status := session.WordStatus(lastWord)
+	// 		for i, score := range status {
+	// 			fmt.Print(bold.Decorate(colorForStatus(score).Colored(string(lastWord.Word[i]))))
+	// 		}
+	// 		fmt.Print("\n")
+	// 	}
+	// }
+	// if session.IsWon() {
+	// 	fmt.Println("Nice job breaking our code and guessing the word !")
+	// } else {
+	// 	fmt.Println("You tried your best !, the word is ", bold.Decorate(colorGreen.Colored(session.correctWord.String())))
+	// }
+	// fmt.Println("Would you like to play again? y(Y)/n(N)")
+	// var input string
+	// _, err := fmt.Scanln(&input)
+	// for err != nil {
+	// 	fmt.Println("Invalid input, please enter y(Y)/n(N)")
+	// 	_, err = fmt.Scanln(&input)
+	// }
+	// if input == "y" || input == "Y" {
+	// 	Start()
+	// }
 }
 
 type Session struct {

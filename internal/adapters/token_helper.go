@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"time"
+
+	"github.com/o1egl/paseto"
+
 	"github.com/lordvidex/wordle-wf/internal/auth"
 	"github.com/lordvidex/wordle-wf/internal/game"
-	"github.com/o1egl/paseto"
-	"time"
 )
 
 var (
