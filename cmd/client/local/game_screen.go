@@ -90,9 +90,10 @@ func (m gameModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View implements tea.Model.
 func (m gameModel) View() string {
 	result := ""
-	if m.gameState == gameWon {
+	switch m.gameState {
+	case gameWon:
 		result = "Yay!! You won!!"
-	} else {
+	case gameLost:
 		result = "Sorry, you lost :("
 	}
 	var boardMsg = m.board.View()
